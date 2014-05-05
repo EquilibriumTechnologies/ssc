@@ -1,6 +1,7 @@
 package com.eqt.ssc;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,6 +135,7 @@ public class SimpleStateCollector {
 			}
 
 			// cleanup any old ones.
+			List<Token> killList = new ArrayList<Token>();
 			for (Token t : tasks.keySet()) {
 				Future<SSCAccountStatus> future = tasks.get(t);
 				// if its done, remove and cleanup.
@@ -144,8 +146,8 @@ public class SimpleStateCollector {
 					} catch (InterruptedException | ExecutionException e) {
 						//eating
 					} finally {
-						// remove from the map
-						tasks.remove(t);
+						// prep to remove from the map
+						killList.add(t);
 						LOG.info("task completed: " + t.getAccountId());
 					}
 				} else if (future.isCancelled()) {
@@ -154,9 +156,15 @@ public class SimpleStateCollector {
 				} else {
 					LOG.debug("Task still running " + t.getAccountId());
 				}
-
 			}
 
+			//actually remove the objects now
+			if(killList.size() > 0) {
+				LOG.debug("removing " + killList.size() + " tasks");
+				for(Token t : killList)
+					tasks.remove(t);
+			}
+			
 			// now we insert a tiny wait
 			try {
 				LOG.debug("sleep");
