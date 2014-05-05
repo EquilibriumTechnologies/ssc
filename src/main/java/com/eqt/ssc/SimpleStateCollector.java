@@ -100,7 +100,7 @@ public class SimpleStateCollector {
 		// check to see if state is newer.
 		// if so, update record on S3 and local.
 
-		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1000, 1, TimeUnit.MINUTES,
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 1000, 1, TimeUnit.MINUTES,
 				new ArrayBlockingQueue<Runnable>(10));
 		Map<Token, Future<SSCAccountStatus>> tasks = new HashMap<Token, Future<SSCAccountStatus>>();
 
