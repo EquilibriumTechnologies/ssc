@@ -37,6 +37,8 @@ public class SimpleStateCollector {
 	StateEngine state;
 	// Curator bits
 	private CuratorFramework client;
+	
+	ThreadPoolExecutor executor;
 
 	/**
 	 * will pull a provider class name from properties. Probably will extend one
@@ -85,23 +87,28 @@ public class SimpleStateCollector {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				LOG.info("closing client");
-				client.close();
 				CloseableUtils.closeQuietly(client);
+				executor.shutdown();
+				try {
+					//give executor a chance to die.
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					//dont really care.
+				} finally {
+					if(!executor.isShutdown())
+						executor.shutdownNow();
+				}
 			}
 		});
 
+		//setup thread pool
+		executor = new ThreadPoolExecutor(50, 1000, 1, TimeUnit.MINUTES,
+				new ArrayBlockingQueue<Runnable>(10));
+		
 		LOG.info("ready");
 	}
 
 	public void run() {
-
-		// loop over every known account
-		// call each section of AWS API.
-		// check to see if state is newer.
-		// if so, update record on S3 and local.
-
-		ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 1000, 1, TimeUnit.MINUTES,
-				new ArrayBlockingQueue<Runnable>(10));
 		Map<Token, Future<SSCAccountStatus>> tasks = new HashMap<Token, Future<SSCAccountStatus>>();
 
 		// get initial list
@@ -173,23 +180,6 @@ public class SimpleStateCollector {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-			// Token account = aMan.getNextAccount();
-			// //TODO: lame
-			// if(account == null) {
-			// LOG.debug("nothing to do");
-			// continue;
-			// }
-			// LOG.debug("working on account: " + account);
-			//
-			// AccountProcessor proc = new AccountProcessor(account, state);
-			// try {
-			// proc.call();
-			// } catch (Exception e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-
 		}
 	}
 
