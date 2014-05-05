@@ -51,6 +51,8 @@ public abstract class AccountManager implements Runnable {
 		 * @return true if more time than checkInterval has passed since it last ran.
 		 */
 		public boolean intervalElapsed() {
+			if(lastUsed == 0)
+				return true;
 			long toGo = System.currentTimeMillis() - lastUsed;
 			if(toGo < checkInterval)
 				return false;

@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -29,6 +31,7 @@ import com.eqt.ssc.util.Props;
  * 
  */
 public class ZookeeperMultiAccountManager extends AccountManager {
+	private static final Log LOG = LogFactory.getLog(ZookeeperMultiAccountManager.class);
 
 	// providerWrapper
 	boolean wrap = false;
@@ -57,6 +60,9 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 			wrapperClass = (Class<? extends AWSCredentialsProvider>) Class.forName(Props
 					.getProp("ssc.account.manager.provider"));
 			wrapCon = wrapperClass.getConstructor(AWSCredentialsProvider.class);
+			LOG.debug("constructor loaded: " + wrapCon.getName());
+		} else {
+			LOG.debug("no wrapper defined");
 		}
 
 		String zkConnectString = Props.getProp("ssc.dist.zookeeper.connect.string");
@@ -76,6 +82,8 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 		// connect ephemerally to zk
 		managerName = ZKPaths.getNodeFromPath(client.create().creatingParentsIfNeeded()
 				.withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(ZKPaths.makePath(_AM_DISCOVERY_PATH, "0")));
+		
+		LOG.debug("manager name set to: " + managerName);
 
 		// lets setup our account cache.
 		accountCache = new PathChildrenCache(client, _AM_ACCOUNTS_PATH, true);
@@ -118,6 +126,7 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 
 			// get latest accountList
 			List<ChildData> accounts = accountCache.getCurrentData();
+
 			// used to keep track of ones we are meant to have, if not in here,
 			// kill.
 			List<String> newAccountList = new ArrayList<String>();
@@ -144,23 +153,27 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 
 					// nope, lets set it up then.
 					if (!has) {
-						SSCFixedProvider provider = new SSCFixedProvider(AWSUtils.getAccountKey(acctStr),
+						AWSCredentialsProvider provider = new SSCFixedProvider(AWSUtils.getAccountKey(acctStr),
 								AWSUtils.getAccountSecret(acctStr));
-						// classload the wrapper provider
-						try {
-							AWSCredentialsProvider wrapper = (AWSCredentialsProvider) wrapCon.newInstance(provider);
-							Token t = new Token(accountId, wrapper, checkInterval);
-							synchronized(tokens) {
-								tokens.add(t);
+						if(wrap) {
+							try {
+								provider = (AWSCredentialsProvider) wrapCon.newInstance(provider);
+								LOG.debug("wrapped provider");
+
+							} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
+								LOG.error("could not create class: " + wrapperClass.getName(), e);
+								throw new IllegalStateException(e);
+							} catch (InvocationTargetException e) {
+								LOG.error("could not invoke powerfull enough spell for class: " + wrapperClass.getName(), e);
+								throw new IllegalStateException(e);
 							}
-							LOG.info("added new account: " + accountId);
-						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
-							LOG.error("could not create class: " + wrapperClass.getName(), e);
-							throw new IllegalStateException(e);
-						} catch (InvocationTargetException e) {
-							LOG.error("could not invoke powerfull enough spell for class: " + wrapperClass.getName(), e);
-							throw new IllegalStateException(e);
 						}
+						Token t = new Token(accountId, provider, checkInterval);
+						synchronized(tokens) {
+							tokens.add(t);
+						}
+						update.set(true);
+						LOG.info("added new account: " + accountId);
 					}
 				}
 				count++;
@@ -185,6 +198,11 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 			}
 			
 			//should be good to go!
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				//eat it
+			}
 
 		}
 	}

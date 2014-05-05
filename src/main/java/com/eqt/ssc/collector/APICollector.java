@@ -69,7 +69,7 @@ public abstract class APICollector {
 			return true;		
 		}
 		
-		LOG.debug("LAST RECORD: " + (lastKnown.length() > 500?lastKnown.substring(0,500)+"...":lastKnown));
+//		LOG.debug("LAST RECORD: " + (lastKnown.length() > 500?lastKnown.substring(0,500)+"...":lastKnown));
 		
 		SSCRecord last = RecordBuilder.read(lastKnown);
 		T value =  (T) last.value;

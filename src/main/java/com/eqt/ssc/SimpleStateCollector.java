@@ -56,7 +56,11 @@ public class SimpleStateCollector {
 				"com.eqt.ssc.accounts.SameCredAccountManager");
 		Class<? extends AccountManager> amClazz = (Class<? extends AccountManager>) Class.forName(acctClass);
 		this.aMan = amClazz.newInstance();
-
+		
+		//TODO: probably want to hold onto this thread?
+		Thread t = new Thread(this.aMan);
+		t.start();
+		
 		// setup our provider class for working with.
 		String provClass = Props.getProp("ssc.provider.class.name",
 				"com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider");
@@ -86,7 +90,6 @@ public class SimpleStateCollector {
 		});
 
 		LOG.info("ready");
-
 	}
 
 	public void run() {
@@ -102,6 +105,7 @@ public class SimpleStateCollector {
 
 		// get initial list
 		List<Token> accounts = aMan.getAccounts();
+		LOG.debug("accounts: " + accounts.size());
 
 		while (true) {
 
@@ -117,15 +121,16 @@ public class SimpleStateCollector {
 				if (!tasks.containsKey(t)) {
 					// check if its time to run
 					if (t.intervalElapsed()) {
-						LOG.debug("spawning thread to check account: " + t);
+						LOG.debug("spawning thread to check account: " + t.getAccountId());
 						// giddy up
 						AccountProcessor proc = new AccountProcessor(t, state);
 						Future<SSCAccountStatus> future = executor.submit(proc);
 						tasks.put(t, future);
 					} else {
-						LOG.debug("not time to run account yet: " + t);
+						LOG.debug("not time to run account yet: " + t.getAccountId());
 					}
-				}
+				} else
+					LOG.debug("task already known about");
 			}
 
 			// cleanup any old ones.
@@ -154,6 +159,7 @@ public class SimpleStateCollector {
 
 			// now we insert a tiny wait
 			try {
+				LOG.debug("sleep");
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

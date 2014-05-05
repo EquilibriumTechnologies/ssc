@@ -37,7 +37,8 @@ public class ZKAccountHelper extends ZookeeperMultiAccountManager {
 		client.start();
 
 		// make dirs
-		client.create().creatingParentsIfNeeded().forPath(_AM_ACCOUNTS_PATH);
+		if(client.checkExists().forPath(_AM_ACCOUNTS_PATH) == null)
+			client.create().creatingParentsIfNeeded().forPath(_AM_ACCOUNTS_PATH);
 
 		String id = null;
 		

@@ -76,9 +76,6 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 		status.timeSinceLastStart = start;
 		status.totalCaptureTimeMS = now - start;
 		
-		LOG.info(((now - start) / 1000.0) + " seconds to process: " + token);
-		LOG.info(total + " state calls changed");
-
 		return status;
 	}
 

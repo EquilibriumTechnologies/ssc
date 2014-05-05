@@ -128,7 +128,7 @@ public class StateEngine {
 		String last = valueMap.get(mapKey(newRecord));
 		//hitup s3
 		if(last == null) {
-			LOG.debug("not in local cache, fetching from S3");
+//			LOG.debug("not in local cache, fetching from S3");
 			last = getFromFS(newRecord);
 			if(last != null)
 				valueMap.put(mapKey(newRecord), last);
