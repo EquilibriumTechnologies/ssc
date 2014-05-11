@@ -14,7 +14,7 @@
 	<version>0.1</version>
 	<packaging>jar</packaging>
 
-	<name>simple-state-capture</name>
+	<name>ssc-core</name>
 	<description>Core components that make up SSC.</description>
 	<url>https://github.com/EquilibriumTechnologies/ssc</url>
 

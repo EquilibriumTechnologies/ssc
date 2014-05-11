@@ -4,4 +4,6 @@ pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.next
 release.properties
-src/main/resources/AwsCredentials.properties
+ssc-core/src/main/resources/AwsCredentials.properties
+ssc-core/target
+ssc-dist/target
