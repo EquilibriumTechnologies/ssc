@@ -79,7 +79,7 @@ public abstract class APICollector {
 			stateChanges += 1;
 			return true;
 		} else {
-			LOG.debug("no state change");
+			LOG.debug(methodName + " no state change");
 			return false;
 		}
 	}
@@ -119,7 +119,7 @@ public abstract class APICollector {
 			stateChanges += 1;
 			return true;
 		} else {
-			LOG.debug("no state change");
+			LOG.debug(methodName + " no state change");
 			return false;
 		}
 	}

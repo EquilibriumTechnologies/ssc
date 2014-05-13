@@ -37,6 +37,9 @@ public class SimpleStateCollector {
 	private AWSCredentialsProvider provider;
 	private AccountManager aMan;
 	StateEngine state;
+	
+	boolean shutDownHookRegistered = false;
+	
 	// Curator bits
 	private CuratorFramework client;
 	
@@ -61,73 +64,92 @@ public class SimpleStateCollector {
 	public SimpleStateCollector() throws IOException, ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
 
-		// load our AccountManager
-		String acctClass = Props.getProp("ssc.account.manager.class.name",
-				"com.eqt.ssc.accounts.SameCredAccountManager");
-		Class<? extends AccountManager> amClazz = (Class<? extends AccountManager>) Class.forName(acctClass);
-		this.aMan = amClazz.newInstance();
-		
-		//TODO: probably want to hold onto this thread?
-		Thread t = new Thread(this.aMan);
-		t.start();
-		
-		// setup our provider class for working with.
-		String provClass = Props.getProp("ssc.provider.class.name",
-				"com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider");
-
-		Class<? extends AWSCredentialsProvider> clazz = (Class<? extends AWSCredentialsProvider>) Class
-				.forName(provClass);
-		this.provider = clazz.newInstance();
-
-		state = new StateEngine(new AmazonS3Client(this.provider));
-
-		// setup zk connectivity
-		String zkConnectString = Props.getProp("ssc.dist.zookeeper.connect.string");
-		if (zkConnectString == null || "".equals(zkConnectString))
-			throw new IllegalStateException("must set ssc.dist.zookeeper.connect.string to use this class");
-
-		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-		client = CuratorFrameworkFactory.newClient(zkConnectString, retryPolicy);
-		client.start();
-
-		// TODO: dunno if this works yet
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
+		Thread t = null;
+		try {
+			// load our AccountManager
+			String acctClass = Props.getProp("ssc.account.manager.class.name",
+					"com.eqt.ssc.accounts.SameCredAccountManager");
+			Class<? extends AccountManager> amClazz = (Class<? extends AccountManager>) Class.forName(acctClass);
+			this.aMan = amClazz.newInstance();
+			
+			//TODO: probably want to hold onto this thread?
+			t = new Thread(this.aMan);
+			t.start();
+			
+			// setup our provider class for working with.
+			String provClass = Props.getProp("ssc.provider.class.name",
+					"com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider");
+	
+			Class<? extends AWSCredentialsProvider> clazz = (Class<? extends AWSCredentialsProvider>) Class
+					.forName(provClass);
+			this.provider = clazz.newInstance();
+	
+			state = new StateEngine(new AmazonS3Client(this.provider));
+	
+			// setup zk connectivity
+			String zkConnectString = Props.getProp("ssc.dist.zookeeper.connect.string");
+			if (zkConnectString == null || "".equals(zkConnectString))
+				throw new IllegalStateException("must set ssc.dist.zookeeper.connect.string to use this class");
+	
+			RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+			client = CuratorFrameworkFactory.newClient(zkConnectString, retryPolicy);
+			client.start();
+	
+			// TODO: dunno if this works yet
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					LOG.info("closing client");
+					CloseableUtils.closeQuietly(client);
+					try {
+						component.stop();
+					} catch (Throwable e1) {
+						// really dont care
+					}
+					if(executor != null)
+						executor.shutdown();
+					try {
+						//give executor a chance to die.
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						//dont really care.
+					} finally {
+						if(executor != null && !executor.isShutdown())
+							executor.shutdownNow();
+					}
+				}
+			});
+			shutDownHookRegistered = true;
+	
+			//setup thread pool
+			executor = new ThreadPoolExecutor(50, 1000, 1, TimeUnit.MINUTES,
+					new ArrayBlockingQueue<Runnable>(10));
+			
+			//restlet
+			component = new Component();
+			component.getServers().add(Protocol.HTTP, 8182);
+			
+			
+			//TODO: make the classloaded parent classes force a getComponent() method
+			//for inclusion.
+			
+		} catch(Throwable e) {
+			LOG.error("Failure to get everything started, force quitting",e);
+			if(!shutDownHookRegistered) {
 				LOG.info("closing client");
 				CloseableUtils.closeQuietly(client);
 				try {
 					component.stop();
-				} catch (Exception e1) {
+				} catch (Throwable e1) {
 					// really dont care
 				}
-				executor.shutdown();
-				try {
-					//give executor a chance to die.
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					//dont really care.
-				} finally {
-					if(!executor.isShutdown())
-						executor.shutdownNow();
-				}
+				if(executor != null)
+					executor.shutdownNow();
+				
+				if(t != null)
+					t.interrupt();
 			}
-		});
-
-		//setup thread pool
-		executor = new ThreadPoolExecutor(50, 1000, 1, TimeUnit.MINUTES,
-				new ArrayBlockingQueue<Runnable>(10));
-		
-		//restlet
-		component = new Component();
-		component.getServers().add(Protocol.HTTP, 8182);
-		
-		
-		//TODO: make the classloaded parent classes force a getComponent() method
-		//for inclusion.
-		
-		
-		
-		
+			System.exit(1);
+		}
 		
 		LOG.info("ready");
 	}
