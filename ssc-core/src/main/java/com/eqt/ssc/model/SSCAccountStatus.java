@@ -1,6 +1,6 @@
 package com.eqt.ssc.model;
 
-import com.eqt.ssc.accounts.AccountManager.Token;
+import com.eqt.ssc.model.Token;
 
 /**
  * Status object that reports out what happened during a scrape of an account.

@@ -9,9 +9,9 @@ import java.util.concurrent.Callable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.eqt.ssc.accounts.AccountManager.Token;
 import com.eqt.ssc.collector.APICollector;
 import com.eqt.ssc.model.SSCAccountStatus;
+import com.eqt.ssc.model.Token;
 import com.eqt.ssc.state.StateEngine;
 import com.eqt.ssc.util.Props;
 
@@ -42,6 +42,7 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 				Constructor<?> cons = clazz.getConstructor(Token.class, StateEngine.class);
 				APICollector newInstance = (APICollector) cons.newInstance(token, state);
 				this.collectors.add(newInstance);
+				LOG.info("added instance: " + clazz.getName());
 
 			} catch (ClassNotFoundException e) {
 				throw new IllegalStateException("could not find class", e);

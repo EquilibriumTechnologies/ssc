@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
-import com.eqt.ssc.accounts.AccountManager.Token;
+import com.eqt.ssc.model.Token;
 import com.eqt.ssc.model.aws.AllBucketsInDetail;
 import com.eqt.ssc.model.aws.BucketWrapper;
 import com.eqt.ssc.state.StateEngine;

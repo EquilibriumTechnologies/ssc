@@ -1,6 +1,7 @@
 package com.eqt.ssc.accounts;
 
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
+import com.eqt.ssc.model.Token;
 import com.eqt.ssc.util.AWSUtils;
 
 /**

@@ -38,17 +38,11 @@ public class HttpJettyServer {
 		public Payloads getPayloads() {
 			LOG.info("getPayloads");
 
-//			ArrayList<Payload> list = new ArrayList<Payload>(map.values());
-//			LOG.info("list: " + list.size());
-//			GenericEntity<List<Payload>> entity = new GenericEntity<List<Payload>>(list) {
-//			};
-//			return Response.ok(entity).build();
 			Payloads p = new Payloads();
 			p.setPayloads(new ArrayList<Payload>(map.values()));
-			 return p;
+			return p;
 		}
 
-		
 		@GET
 		@Path("payload/{id}")
 		@Produces(MediaType.APPLICATION_JSON)
@@ -93,17 +87,18 @@ public class HttpJettyServer {
 																									// reside
 		sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
 
-		//root your context in the creation of it.
-		ServletContextHandler context = new ServletContextHandler(server, "/api/firstSteps", ServletContextHandler.SESSIONS);
-		//* apparently needs to be here to work.
+		// root your context in the creation of it.
+		ServletContextHandler context = new ServletContextHandler(server, "/api/firstSteps",
+				ServletContextHandler.SESSIONS);
+		// * apparently needs to be here to work.
 		context.addServlet(sh, "/*");
 		server.setHandler(context);
 
-		//multiple contexts can be added this way.
-//		ContextHandlerCollection contexts = new ContextHandlerCollection();
-//        contexts.setHandlers(new Handler[] { context0, webapp });
-//        server.setHandler(contexts);
-		
+		// multiple contexts can be added this way.
+		// ContextHandlerCollection contexts = new ContextHandlerCollection();
+		// contexts.setHandlers(new Handler[] { context0, webapp });
+		// server.setHandler(contexts);
+
 		// WebAppContext bb = new WebAppContext();
 		// bb.setServer(server);
 		// bb.setContextPath("/");

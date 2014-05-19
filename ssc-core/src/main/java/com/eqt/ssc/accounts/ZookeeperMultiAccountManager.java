@@ -19,6 +19,7 @@ import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.eqt.ssc.model.Token;
 import com.eqt.ssc.util.AWSUtils;
 import com.eqt.ssc.util.Props;
 
@@ -145,7 +146,7 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 					boolean has = false;
 					synchronized (tokens) {
 						for (Token t : tokens)
-							if (t.accountId.equals(accountId)) {
+							if (t.getAccountId().equals(accountId)) {
 								has = true;
 								break;
 							}

@@ -11,7 +11,7 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeReservedInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeSnapshotsRequest;
-import com.eqt.ssc.accounts.AccountManager.Token;
+import com.eqt.ssc.model.Token;
 import com.eqt.ssc.state.StateEngine;
 
 public class EC2Collector extends APICollector {

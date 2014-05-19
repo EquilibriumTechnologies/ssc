@@ -4,8 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.auth.AWSCredentials;
-import com.eqt.ssc.accounts.AccountManager.Token;
 import com.eqt.ssc.model.SSCRecord;
+import com.eqt.ssc.model.Token;
 import com.eqt.ssc.serde.RecordBuilder;
 import com.eqt.ssc.state.StateEngine;
 
