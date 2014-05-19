@@ -18,8 +18,6 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
-import org.restlet.Component;
-import org.restlet.data.Protocol;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -46,10 +44,6 @@ public class SimpleStateCollector {
 	//threadpool for workers
 	ThreadPoolExecutor executor;
 	
-	//Restlet
-	Component component;
-	
-
 	/**
 	 * will pull a provider class name from properties. Probably will extend one
 	 * of the AWS ones to populate it and send it through this thing so it can
@@ -100,11 +94,6 @@ public class SimpleStateCollector {
 				public void run() {
 					LOG.info("closing client");
 					CloseableUtils.closeQuietly(client);
-					try {
-						component.stop();
-					} catch (Throwable e1) {
-						// really dont care
-					}
 					if(executor != null)
 						executor.shutdown();
 					try {
@@ -124,11 +113,6 @@ public class SimpleStateCollector {
 			executor = new ThreadPoolExecutor(50, 1000, 1, TimeUnit.MINUTES,
 					new ArrayBlockingQueue<Runnable>(10));
 			
-			//restlet
-			component = new Component();
-			component.getServers().add(Protocol.HTTP, 8182);
-			
-			
 			//TODO: make the classloaded parent classes force a getComponent() method
 			//for inclusion.
 			
@@ -137,11 +121,6 @@ public class SimpleStateCollector {
 			if(!shutDownHookRegistered) {
 				LOG.info("closing client");
 				CloseableUtils.closeQuietly(client);
-				try {
-					component.stop();
-				} catch (Throwable e1) {
-					// really dont care
-				}
 				if(executor != null)
 					executor.shutdownNow();
 				
