@@ -1,6 +1,7 @@
 package com.eqt.ssc.accounts;
 
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
+import com.eqt.ssc.model.SSCAccount;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.util.AWSUtils;
 
@@ -27,6 +28,11 @@ public class SameCredAccountManager extends AccountManager {
 	}
 	
 	public void run() {
+	}
+	
+	@Override
+	public void addAccount(SSCAccount account) {
+		throw new UnsupportedOperationException("does not supprt this");
 	}
 
 }

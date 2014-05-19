@@ -20,6 +20,11 @@ public class Props {
 		return props.getProperty(key);
 	}
 	
+	public static int getPropInt(String key, String defaultValue) {
+		return Integer.parseInt(props.getProperty(key,defaultValue));
+	}
+	
+	
 	public static String getProp(String key, String defaultValue) {
 		return props.getProperty(key, defaultValue);
 	}

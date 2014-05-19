@@ -22,11 +22,13 @@ import org.apache.curator.utils.CloseableUtils;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.eqt.ssc.accounts.AccountManager;
+import com.eqt.ssc.accounts.AccountManagerFactory;
 import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.process.AccountProcessor;
 import com.eqt.ssc.state.StateEngine;
 import com.eqt.ssc.util.Props;
+import com.eqt.ssc.web.HttpServer;
 
 public class SimpleStateCollector {
 
@@ -44,6 +46,9 @@ public class SimpleStateCollector {
 	//threadpool for workers
 	ThreadPoolExecutor executor;
 	
+	//web server
+	HttpServer webServer;
+	
 	/**
 	 * will pull a provider class name from properties. Probably will extend one
 	 * of the AWS ones to populate it and send it through this thing so it can
@@ -60,15 +65,13 @@ public class SimpleStateCollector {
 
 		Thread t = null;
 		try {
-			// load our AccountManager
-			String acctClass = Props.getProp("ssc.account.manager.class.name",
-					"com.eqt.ssc.accounts.SameCredAccountManager");
-			Class<? extends AccountManager> amClazz = (Class<? extends AccountManager>) Class.forName(acctClass);
-			this.aMan = amClazz.newInstance();
+			this.aMan = AccountManagerFactory.getInstance();
 			
 			//TODO: probably want to hold onto this thread?
 			t = new Thread(this.aMan);
 			t.start();
+			
+			webServer = new HttpServer();
 			
 			// setup our provider class for working with.
 			String provClass = Props.getProp("ssc.provider.class.name",
@@ -94,6 +97,7 @@ public class SimpleStateCollector {
 				public void run() {
 					LOG.info("closing client");
 					CloseableUtils.closeQuietly(client);
+					CloseableUtils.closeQuietly(webServer);
 					if(executor != null)
 						executor.shutdown();
 					try {

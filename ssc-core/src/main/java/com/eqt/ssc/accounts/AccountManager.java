@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.eqt.ssc.model.SSCAccount;
 import com.eqt.ssc.model.Token;
 
 /**
@@ -26,16 +27,8 @@ public abstract class AccountManager implements Runnable {
 	protected List<Token> tokens = Collections.synchronizedList(new ArrayList<Token>());
 	protected int currToken = -1;
 	protected static final int DEFAULT_CHECK_INTERVAL = 60*1000;
-//	protected Map<ACCOUNT_ITEM, Integer> checkIntervals = new HashMap<SSCAccount.ACCOUNT_ITEM, Integer>();
 	
-	public AccountManager() {
-		//populate the default check intervals
-//		for(ACCOUNT_ITEM item : ACCOUNT_ITEM.values()) {
-//			int val = Integer.parseInt(Props.getProp("ssc.account.check.interval.seconds."+item,"60"))*1000;
-//			this.checkIntervals.put(item, val);
-//			LOG.info("Account Checking interval " + item + " set to: " + val + "ms");
-//		}
-	}
+	public AccountManager() { }
 	
 	public boolean update() {
 		return update.get();
@@ -49,4 +42,10 @@ public abstract class AccountManager implements Runnable {
 		}
 		return result;
 	}
+	
+	/**
+	 * used to allow adding of accounts into the system from the webservices api's.
+	 * @param account
+	 */
+	public abstract void addAccount(SSCAccount account) throws UnsupportedOperationException;
 }

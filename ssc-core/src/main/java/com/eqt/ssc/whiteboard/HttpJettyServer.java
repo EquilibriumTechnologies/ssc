@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -20,17 +21,55 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.ContextLoaderListener;
 
-import com.sun.jersey.spi.container.servlet.ServletContainer;
+import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 
 public class HttpJettyServer {
 
 	public static final Log LOG = LogFactory.getLog(HttpJettyServer.class);
+	
+	public static class DAOFactory {
+		private static volatile DAO dao = new DAOImpl();
+		public static DAO getDAO() {
+			System.out.println("FACTORY CALLED");
+			return dao;
+		}
+	}
+	
+	public static interface DAO {
+		public Map<String, Payload> getMap();
+	}
+	
+	public static class DAOImpl implements DAO {
+		public Map<String, Payload> map = new HashMap<String, Payload>();
+		
+		public DAOImpl() {
+			Payload p = new Payload();
+			p.setName("steve");
+			p.setValue("123");
+			map.put(p.getName(), p);
+		}
+		
+		public Map<String, Payload> getMap() {return map;}
+		
+	}
 
 	@Path("/")
+//	@Component
 	public static class Res {
 
-		static Map<String, Payload> map = new HashMap<String, Payload>();
+//		static Map<String, Payload> map = new HashMap<String, Payload>();
+//		@Autowired
+		DAO dao = DAOFactory.getDAO();
+		
+//		@Autowired
+//		public void setDAO(DAO dao) {
+//			System.out.println("SET DAO CALLED");
+//			this.dao = dao;
+//		}
 
 		@GET
 		@Path("payloads")
@@ -39,7 +78,7 @@ public class HttpJettyServer {
 			LOG.info("getPayloads");
 
 			Payloads p = new Payloads();
-			p.setPayloads(new ArrayList<Payload>(map.values()));
+			p.setPayloads(new ArrayList<Payload>(dao.getMap().values()));
 			return p;
 		}
 
@@ -49,8 +88,8 @@ public class HttpJettyServer {
 		public Payload getPayload(@PathParam("id") String id) {
 			LOG.info("getPayload");
 			if (id != null) {
-				LOG.info("getPayload ID: " + id + " " + map.get(id));
-				return map.get(id);
+				LOG.info("getPayload ID: " + id + " " + dao.getMap().get(id));
+				return dao.getMap().get(id);
 			}
 			return null;
 		}
@@ -62,7 +101,7 @@ public class HttpJettyServer {
 			LOG.info("putPayloads");
 			if (p != null) {
 				LOG.info("putPayloads: " + p);
-				map.put(p.name, p);
+				dao.getMap().put(p.name, p);
 				return Response.ok().build();
 			}
 			LOG.info("putPayloads: no data");
@@ -75,7 +114,9 @@ public class HttpJettyServer {
 
 		Server server = new Server(8182);
 
-		ServletHolder sh = new ServletHolder(ServletContainer.class);
+//		ServletHolder sh = new ServletHolder(ServletContainer.class);
+		ServletHolder sh = new ServletHolder(SpringServlet.class);
+//		sh.setInitParameter("contextConfigLocation", "classpath*:**/sscContext.xml");
 		sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass",
 				"com.sun.jersey.api.core.PackagesResourceConfig");
 		sh.setInitParameter("com.sun.jersey.config.property.packages", "com.eqt.ssc.whiteboard");// Set
@@ -90,9 +131,13 @@ public class HttpJettyServer {
 		// root your context in the creation of it.
 		ServletContextHandler context = new ServletContextHandler(server, "/api/firstSteps",
 				ServletContextHandler.SESSIONS);
+		context.addEventListener(new ContextLoaderListener());
+		context.setInitParameter("contextConfigLocation", "classpath*:**/sscContext.xml");
 		// * apparently needs to be here to work.
 		context.addServlet(sh, "/*");
 		server.setHandler(context);
+		
+//		new ServletHolder
 
 		// multiple contexts can be added this way.
 		// ContextHandlerCollection contexts = new ContextHandlerCollection();

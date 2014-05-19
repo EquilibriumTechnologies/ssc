@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<!-- 
+	<bean class="com.eqt.ssc.whiteboard.HttpJettyServer.DAOFactory" id="factory" />
+
+	
+	<bean id="DAO" factory-bean="factory" factory-method="getDAO" class="com.eqt.ssc.whiteboard.HttpJettyServer.DAO"></bean>
+	<bean id="DAO" class="com.eqt.ssc.whiteboard.HttpJettyServer.DAOImpl"></bean>
+	-->
+</beans>

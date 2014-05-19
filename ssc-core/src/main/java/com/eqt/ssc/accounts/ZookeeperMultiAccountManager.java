@@ -219,4 +219,25 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 
 		}
 	}
+	
+	@Override
+	public void addAccount(SSCAccount account) {
+		String payload = AWSUtils.serialize(account);
+		LOG.debug("account being added: " + payload);
+		byte[] bytes = payload.getBytes();
+		String path = ZKPaths.makePath(_AM_ACCOUNTS_PATH, account.getAccountId());
+
+		//add account if it doesnt exist.
+		try {
+			if(client.checkExists().forPath(path) == null) {
+				client.create().forPath(path,bytes);
+				LOG.debug("account created");
+			} else {
+				LOG.debug("account already existed, updating");
+				client.setData().forPath(path,bytes);
+			}
+		} catch (Exception e) {
+			throw new IllegalStateException("well couldnt do that", e);
+		}
+	}
 }
