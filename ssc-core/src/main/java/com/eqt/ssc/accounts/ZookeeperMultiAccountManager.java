@@ -19,6 +19,7 @@ import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.eqt.ssc.model.SSCAccount;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.util.AWSUtils;
 import com.eqt.ssc.util.Props;
@@ -138,7 +139,8 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 				// this is one of ours. Take it.
 				if (count == pos) {
 					String acctStr = new String(c.getData());
-					String accountId = AWSUtils.getAccountId(acctStr);
+					SSCAccount account = AWSUtils.deserialize(acctStr);
+					String accountId = account.getAccountId();
 					// add to our list of keepers.
 					newAccountList.add(accountId);
 
@@ -154,8 +156,9 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 
 					// nope, lets set it up then.
 					if (!has) {
-						AWSCredentialsProvider provider = new SSCFixedProvider(AWSUtils.getAccountKey(acctStr),
-								AWSUtils.getAccountSecret(acctStr));
+						//TODO: rework this, maybe make Token a provider?
+						AWSCredentialsProvider provider = new SSCFixedProvider(account.getAccessKey(),
+								account.getSecretKey());
 						if (wrap) {
 							try {
 								provider = (AWSCredentialsProvider) wrapCon.newInstance(provider);
@@ -171,7 +174,9 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 								throw new IllegalStateException(e);
 							}
 						}
-						Token t = new Token(accountId, provider, checkInterval);
+
+						Token t = new Token(account,provider);
+						
 						synchronized (tokens) {
 							tokens.add(t);
 						}

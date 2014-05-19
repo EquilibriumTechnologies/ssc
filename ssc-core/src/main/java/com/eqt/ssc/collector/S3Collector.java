@@ -63,4 +63,8 @@ public class S3Collector extends APICollector {
 		return stateChanges;
 	}
 
+	@Override
+	protected String getCustomIntervalProperty() {
+		return "ssc.account.check.interval.s3.seconds";
+	}
 }

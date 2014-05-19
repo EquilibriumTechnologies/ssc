@@ -3,17 +3,12 @@ package com.eqt.ssc.accounts;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.eqt.ssc.model.SSCAccount;
 import com.eqt.ssc.model.Token;
-import com.eqt.ssc.util.Props;
 
 /**
  * Watches a given resource to maintain a list of accounts
@@ -30,11 +25,16 @@ public abstract class AccountManager implements Runnable {
 	//TODO: probably need to synchronize this thing
 	protected List<Token> tokens = Collections.synchronizedList(new ArrayList<Token>());
 	protected int currToken = -1;
-	protected int checkInterval = 60*1000;
+	protected static final int DEFAULT_CHECK_INTERVAL = 60*1000;
+//	protected Map<ACCOUNT_ITEM, Integer> checkIntervals = new HashMap<SSCAccount.ACCOUNT_ITEM, Integer>();
 	
 	public AccountManager() {
-		this.checkInterval = Integer.parseInt(Props.getProp("ssc.account.check.interval.seconds","60"))*1000;
-		LOG.info("Account Checking interval set to: " + checkInterval + "ms");
+		//populate the default check intervals
+//		for(ACCOUNT_ITEM item : ACCOUNT_ITEM.values()) {
+//			int val = Integer.parseInt(Props.getProp("ssc.account.check.interval.seconds."+item,"60"))*1000;
+//			this.checkIntervals.put(item, val);
+//			LOG.info("Account Checking interval " + item + " set to: " + val + "ms");
+//		}
 	}
 	
 	public boolean update() {

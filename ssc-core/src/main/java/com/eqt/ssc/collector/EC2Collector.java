@@ -26,6 +26,7 @@ public class EC2Collector extends APICollector {
 	}
 
 	
+	
 	@Override
 	public int collect() {
 		
@@ -113,5 +114,10 @@ public class EC2Collector extends APICollector {
 		compareObjects(ec2.describeVpnGateways(), "ec2.describeVpnGateways");
 		
 		return stateChanges;
+	}
+
+	@Override
+	protected String getCustomIntervalProperty() {
+		return "ssc.account.check.interval.ec2.seconds";
 	}
 }

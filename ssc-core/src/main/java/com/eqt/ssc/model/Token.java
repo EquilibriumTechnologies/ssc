@@ -1,48 +1,50 @@
 package com.eqt.ssc.model;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 
+/**
+ * live running version of the SSCAccount, this adds in credentials
+ * for aws, and checkIntervals for actually polling an account.
+ * @author gman
+ *
+ */
 public class Token extends SSCAccount {
-//	String accountId;
+
 	AWSCredentialsProvider creds;
-	long lastUsed;
+//	long lastUsed;
 	long lastRefreshed;
-	long checkInterval = 0;
-//	SSCAccount account;
 	
-	public Token(String accountId, AWSCredentialsProvider creds, long checkInterval) {
+	public Token() { }
+	
+	public Token(SSCAccount account, AWSCredentialsProvider creds) {
+		this.accountId = account.getAccountId();
+		this.accessKey = account.getAccessKey();
+		this.secretKey = account.getSecretKey();
+		this.ctBucketName = account.getCtBucketName();
+		this.ctPath = account.getCtPath();
+		this.s3BucketName = account.getS3BucketName();
+		this.s3Path = account.getS3Path();
+		this.updateTimestampMap = new HashMap<String, Long>(account.getUpdateTimestampMap());
+		this.creds = creds;
+	}
+	
+	public Token(String accountId, AWSCredentialsProvider creds) {
 		this.accountId = accountId;
 		this.creds = creds;
 		this.lastRefreshed = System.currentTimeMillis();
-		this.lastUsed = 0;
-		this.checkInterval = checkInterval;
 	}
 	
-	public long use() {
-		this.lastUsed = System.currentTimeMillis();
-		return this.lastUsed;
+	public void setProvider(AWSCredentialsProvider creds) {
+		this.creds = creds;
 	}
 	
-	/**
-	 * tells you if this token is ready to be collected again, checked
-	 * last time it was called use() on vs the time interval it is meant
-	 * to check on.
-	 * @return true if more time than checkInterval has passed since it last ran.
-	 */
-	public boolean intervalElapsed() {
-		if(lastUsed == 0)
-			return true;
-		long toGo = System.currentTimeMillis() - lastUsed;
-		if(toGo < checkInterval)
-			return false;
-		return true;
-	}
-	
-	public String getAccountId() {
-		return accountId;
+	public long use(String item) {
+		this.updateTimestampMap.put(item, System.currentTimeMillis());
+		return this.updateTimestampMap.get(item);
 	}
 	
 	public AWSCredentials getCredentials() {
@@ -55,7 +57,7 @@ public class Token extends SSCAccount {
 	}
 	
 	public String toString() {
-		return "account: " + accountId + " lastRefreshed: " + lastRefreshed + " last used: " + lastUsed + 
+		return "account: " + accountId + " lastRefreshed: " + lastRefreshed + 
 				" keyId: " + creds.getCredentials().getAWSAccessKeyId();
 	}
 	

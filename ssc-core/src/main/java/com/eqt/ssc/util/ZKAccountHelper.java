@@ -4,12 +4,14 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.curator.utils.ZKPaths;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.eqt.ssc.accounts.SSCFixedProvider;
 import com.eqt.ssc.accounts.ZookeeperMultiAccountManager;
+import com.eqt.ssc.model.SSCAccount;
 
 /**
  * manual way to push some creds into ZK.
@@ -64,16 +66,21 @@ public class ZKAccountHelper extends ZookeeperMultiAccountManager {
 			System.exit(1);
 		}
 		
+		//TODO: encryption of keys.
+//		String payload = AWSUtils.packAWSCredentials(args[1],args[2],id);
+		String payload = AWSUtils.serialize(new SSCAccount(id, args[1], args[2]));
+		System.out.println("payload: " + payload);
+		byte[] bytes = payload.getBytes();
+		String path = ZKPaths.makePath(_AM_ACCOUNTS_PATH, id);
+
 		//add account if it doesnt exist.
-		if(client.checkExists().forPath(_AM_ACCOUNTS_PATH+"/"+id) == null) {
-			//TODO: encryption of keys.
-			String payload = AWSUtils.packAWSCredentials(args[1],args[2],id);
-			
-			byte[] bytes = payload.getBytes();
-			client.create().forPath(_AM_ACCOUNTS_PATH+"/"+id,bytes);
+		if(client.checkExists().forPath(path) == null) {
+			client.create().forPath(path,bytes);
 			System.out.println("account created");
-		} else
-			System.out.println("account already existed");
+		} else {
+			System.out.println("account already existed, updating");
+			client.setData().forPath(path,bytes);
+		}
 		client.close();
 	}
 

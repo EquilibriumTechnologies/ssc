@@ -152,16 +152,13 @@ public class SimpleStateCollector {
 			for (Token t : accounts) {
 				// new one?
 				if (!tasks.containsKey(t)) {
-					// check if its time to run
-					if (t.intervalElapsed()) {
-						LOG.debug("spawning thread to check account: " + t.getAccountId());
-						// giddy up
-						AccountProcessor proc = new AccountProcessor(t, state);
-						Future<SSCAccountStatus> future = executor.submit(proc);
-						tasks.put(t, future);
-					} else {
-						LOG.debug("not time to run account yet: " + t.getAccountId());
-					}
+					//lets kick it off
+					LOG.debug("spawning thread to check account: " + t.getAccountId());
+					// giddy up
+					//TODO: could pool these and reuse.
+					AccountProcessor proc = new AccountProcessor(t, state);
+					Future<SSCAccountStatus> future = executor.submit(proc);
+					tasks.put(t, future);
 				} else
 					LOG.debug("task already known about");
 			}

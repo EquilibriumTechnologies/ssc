@@ -63,14 +63,19 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 	}
 
 	public SSCAccountStatus call() throws Exception {
-		long start = token.use();
+		long start = System.currentTimeMillis();
 		int total = 0;
 		// TODO: handle exceptions and rerun up to a number of times.
 		for (APICollector collector : collectors) {
-			total += collector.collect();
+			long curr = System.currentTimeMillis();
+			if(token.lastUpdate(collector.getCollectorName()) + collector.getIntervalTime() < curr) {
+				token.use(collector.getCollectorName());
+				total += collector.collect();
+			}
 		}
 		long now = System.currentTimeMillis();
 		
+		//TODO: more granular metrics reporting
 		SSCAccountStatus status = new SSCAccountStatus(token);
 		status.changes = total;
 		status.success = true;

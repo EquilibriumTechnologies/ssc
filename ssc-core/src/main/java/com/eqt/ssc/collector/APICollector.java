@@ -8,6 +8,7 @@ import com.eqt.ssc.model.SSCRecord;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.serde.RecordBuilder;
 import com.eqt.ssc.state.StateEngine;
+import com.eqt.ssc.util.Props;
 
 /**
  * base class for collecting against a particular api call to check to see if
@@ -21,6 +22,8 @@ public abstract class APICollector {
 
 	private Token token;
 	protected StateEngine state;
+	
+	protected static final String PROP_DEFAULT_INTERVAL = "ssc.account.check.interval.default.seconds";
 	
 	//number that can be used to track the number of api calls that changed.
 	protected int stateChanges = 0;
@@ -47,6 +50,27 @@ public abstract class APICollector {
 	 * @return number of state calls that changed.
 	 */
 	public abstract int collect();
+	
+	/**
+	 * use this to grab the interval frequency in which we check on.
+	 */
+	public int getIntervalTime() {
+		return Props.getPropInt(PROP_DEFAULT_INTERVAL, getCustomIntervalProperty(),"57")*1000;
+	}
+	
+	/**
+	 * simple method to return a unique name
+	 * @return
+	 */
+	public String getCollectorName() {
+		return this.getClass().getSimpleName();
+	}
+	
+	/**
+	 * this is called to get the overriding property from the props file
+	 * @return
+	 */
+	protected abstract String getCustomIntervalProperty();
 	
 	/**
 	 * Used to do a simple object.equals(lastObject) test.

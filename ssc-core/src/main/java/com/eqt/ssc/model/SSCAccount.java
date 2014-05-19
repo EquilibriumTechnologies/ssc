@@ -29,7 +29,19 @@ public class SSCAccount {
 	public SSCAccount(String accountId) {
 		this.accountId = accountId;
 	}
+	
+	public SSCAccount(String accountId, String accessKey, String secretKey) {
+		this.accountId = accountId;
+		this.accessKey = accessKey;
+		this.secretKey = secretKey;
+	}
 
+	public long lastUpdate(String item) {
+		if(updateTimestampMap.get(item) == null)
+			updateTimestampMap.put(item, 0l);
+		return updateTimestampMap.get(item);
+	}
+	
 	public String getAccountId() {
 		return accountId;
 	}
