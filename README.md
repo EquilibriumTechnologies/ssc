@@ -14,6 +14,7 @@ This project was created with the purpose of providing a historical capture of t
 #### Getting started:
 
 Clone this repo.
+mvn clean package install
 
 For a single account monitoring, create an AwsCredentials.properties file in /src/main/resources with appropriate accesses. (See xxx for the one we use)
 
