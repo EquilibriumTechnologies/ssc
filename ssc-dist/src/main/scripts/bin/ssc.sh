@@ -11,6 +11,8 @@ for x in $bin/../lib/*.jar; do
   SSC_CLASSPATH=$x:$SSC_CLASSPATH
 done
 
+SSC_CLASSPATH=$bin/../conf:$SSC_CLASSPATH
+
 export SSC_HOME="$bin"/..
 PID_FILE=$SSC_HOME/pids/ssc.pid
 
@@ -18,7 +20,7 @@ function start () {
   PROC_NAME=ssc-server-$HOSTNAME
   echo "starting: $PROC_NAME  $SSC_CLASSPATH"
   "$JAVA_HOME"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector
-  #nohup "$JAVA_HOME"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCapture  2>&1 < /dev/null &
+  #nohup "$JAVA_HOME"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector  2>&1 < /dev/null &
   echo $! > $PID_FILE
   echo SSC starting as process `cat $PID_FILE`.
 }

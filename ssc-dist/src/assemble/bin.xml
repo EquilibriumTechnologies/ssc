@@ -36,6 +36,9 @@
         <include>com.sun.jersey:*</include>
         <include>com.sun.jersey.contribs:*</include>
         <include>org.springframework:*</include>
+        <include>javax.xml.bind:*</include>
+        <include>javax.xml.stream:*</include>
+        <include>javax.activation:activation</include>
         <include>javax.servlet:*</include>
       </includes>
     </dependencySet>

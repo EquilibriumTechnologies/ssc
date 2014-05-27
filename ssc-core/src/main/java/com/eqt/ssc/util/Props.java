@@ -1,18 +1,34 @@
 package com.eqt.ssc.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
+
+import org.apache.curator.utils.CloseableUtils;
 
 public class Props {
 	
 	private static Properties props = new Properties();
 	
 	static {
+		InputStream defaultProps = null;
+		InputStream customProps = null;
 		try {
-			props.load(Props.class.getResourceAsStream("/ssc.properties"));
+			defaultProps = Props.class.getResourceAsStream("/ssc-default.properties");
+			props.load(defaultProps);
+			
+			customProps = Props.class.getResourceAsStream("/ssc.properties");
+			if(customProps == null)
+				throw new FileNotFoundException("cannot find ssc.properties");
+			
+			props.load(customProps);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IllegalStateException("cannot load the properties files",e);
+
+		} finally {
+			CloseableUtils.closeQuietly(defaultProps);
+			CloseableUtils.closeQuietly(customProps);
 		}
 	}
 
