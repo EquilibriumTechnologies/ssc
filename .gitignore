@@ -8,3 +8,6 @@ ssc-core/src/main/resources/AwsCredentials.properties
 ssc-core/target
 ssc-dist/target
 ssc-dist/src/main/scripts/conf/AwsCredentials.properties
+ssc-analytic/target
+
+pig_*

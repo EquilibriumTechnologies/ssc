@@ -2,6 +2,7 @@ package com.eqt.ssc.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Wraps up all the info we could want on an account for monitoring purposes.
@@ -20,6 +21,8 @@ public class SSCAccount {
 	
 	//for a given key, say s3, or ct, or ssc, can store the last update.
 	protected Map<String, Long> updateTimestampMap = new HashMap<String, Long>();
+	
+	protected Map<String,String> attributes = new TreeMap<String,String>();
 	
 	/**
 	 * here for serialization
@@ -104,6 +107,20 @@ public class SSCAccount {
 
 	public void setUpdateTimestampMap(Map<String, Long> updateTimestampMap) {
 		this.updateTimestampMap = updateTimestampMap;
+	}
+
+	
+	
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
+	}
+	
+	public void addAttribute(String key, String value) {
+		this.attributes.put(key, value);
 	}
 
 	@Override
