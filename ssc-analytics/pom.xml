@@ -44,6 +44,11 @@
 			<version>0.11.1</version>
 			<classifier>h2</classifier>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>2.2.0</version>
+		</dependency>
 
 		<!-- testing -->
 		<dependency>

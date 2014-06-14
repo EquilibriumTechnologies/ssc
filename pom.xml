@@ -20,6 +20,7 @@
 	<modules>
 		<module>ssc-model</module>
 		<module>ssc-core</module>
+		<module>ssc-analytics</module>
 		<module>ssc-dist</module>
   </modules>
   
