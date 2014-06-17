@@ -35,11 +35,19 @@ public class Props {
 	public static String getProp(String key) {
 		return props.getProperty(key);
 	}
+
+	public static int getPropInt(String key) {
+		return Integer.parseInt(props.getProperty(key));
+	}
+
 	
 	public static int getPropInt(String key, String defaultValue) {
 		return Integer.parseInt(props.getProperty(key,defaultValue));
 	}
 	
+	public static boolean getPropBoolean(String key) {
+		return Boolean.valueOf(props.getProperty(key));
+	}
 	
 	public static String getProp(String key, String defaultValue) {
 		return props.getProperty(key, defaultValue);
