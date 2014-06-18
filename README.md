@@ -14,7 +14,16 @@ This project was created with the purpose of providing a historical capture of t
 #### Getting started:
 
 Clone this repo.
+
+```bash
+git clone https://github.com/EquilibriumTechnologies/ssc.git
+```
+
+build.
+
+``` bash
 mvn clean package install
+```
 
 in ssc/ssc-dist/target there will be a bin tar.  Extract that to your desired running location.
 
