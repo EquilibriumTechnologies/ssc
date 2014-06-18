@@ -140,6 +140,7 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 				if (count == pos) {
 					String acctStr = new String(c.getData());
 					SSCAccount account = AWSUtils.deserialize(acctStr);
+					LOG.info("got account: " + account);
 					String accountId = account.getAccountId();
 					// add to our list of keepers.
 					newAccountList.add(accountId);

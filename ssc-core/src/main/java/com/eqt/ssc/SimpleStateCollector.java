@@ -177,7 +177,8 @@ public class SimpleStateCollector {
 						SSCAccountStatus sscAccountStatus = future.get();
 						LOG.info(sscAccountStatus);
 					} catch (InterruptedException | ExecutionException e) {
-						//eating
+						//TODO: create error log to write to.
+						LOG.warn("throwing up working on an account", e);
 					} finally {
 						// prep to remove from the map
 						killList.add(t);

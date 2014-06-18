@@ -45,6 +45,8 @@ public abstract class AccountManager implements Runnable {
 	
 	/**
 	 * used to allow adding of accounts into the system from the webservices api's.
+	 * also updates an existing account if it is already present, useful for 
+	 * adding in statistics that need to be kept up to date.
 	 * @param account
 	 */
 	public abstract void addAccount(SSCAccount account) throws UnsupportedOperationException;

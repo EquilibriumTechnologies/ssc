@@ -9,6 +9,9 @@ import java.util.concurrent.Callable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.amazonaws.AmazonServiceException;
+import com.eqt.ssc.accounts.AccountManager;
+import com.eqt.ssc.accounts.AccountManagerFactory;
 import com.eqt.ssc.collector.APICollector;
 import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
@@ -21,6 +24,7 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 	private List<APICollector> collectors = new ArrayList<APICollector>();
 	private Token token;
 	protected StateEngine state;
+	protected AccountManager aman = null;
 
 	/**
 	 * calls the props class for ssc.process.api.collectors which will be a
@@ -60,20 +64,42 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 				throw new IllegalStateException("could not get the invocation target", e);
 			}
 		}
+		
+		aman = AccountManagerFactory.getInstance();
 	}
 
 	public SSCAccountStatus call() throws Exception {
 		long start = System.currentTimeMillis();
+		boolean ran = false;
 		int total = 0;
 		// TODO: handle exceptions and rerun up to a number of times.
 		for (APICollector collector : collectors) {
-			long curr = System.currentTimeMillis();
-			if(token.lastUpdate(collector.getCollectorName()) + collector.getIntervalTime() < curr) {
-				token.use(collector.getCollectorName());
-				total += collector.collect();
+			try {
+				long curr = System.currentTimeMillis();
+				if(token.lastUpdate(collector.getCollectorName()) + collector.getIntervalTime() < curr) {
+					token.use(collector.getCollectorName());
+					total += collector.collect();
+					ran = true;
+				}
+			} catch (AmazonServiceException e) {
+				//typically access denied, this is a big deal.
+				LOG.error("unable to interact with " + collector.getCollectorName(), e);
+				//TODO: write this error out to a store.
+			} catch(Throwable t) {
+				//TODO: write this error out to a store.
+				LOG.error("boom, ungood, cannot run collector: " + collector.getCollectorName(),t);
+				throw new Exception(t);
 			}
 		}
 		long now = System.currentTimeMillis();
+		
+		LOG.info("###########################");
+		
+		//send an update back out to the AM for recording.
+		if(ran) {
+			LOG.info("calling addAccount");
+			aman.addAccount(token);
+		}
 		
 		//TODO: more granular metrics reporting
 		SSCAccountStatus status = new SSCAccountStatus(token);
