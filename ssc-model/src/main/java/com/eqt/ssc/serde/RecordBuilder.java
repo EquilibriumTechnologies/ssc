@@ -83,6 +83,10 @@ public class RecordBuilder {
 		return gson.toJson(record);
 	}
 	
+	public static JsonElement treeObject(Object record) {
+		return gson.toJsonTree(record);
+	}
+	
 	/**
 	 * rips the value portion of a serialized version of an SSCRecord and returns
 	 * it as found, not converted back to an object.
