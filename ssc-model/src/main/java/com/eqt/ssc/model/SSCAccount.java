@@ -20,9 +20,9 @@ public class SSCAccount {
 	protected String ctPath;
 	
 	//for a given key, say s3, or ct, or ssc, can store the last update.
-	protected Map<String, Long> updateTimestampMap = new HashMap<String, Long>();
+	protected Map<String, Long> updateTimestampMap;
 	
-	protected Map<String,String> attributes = new TreeMap<String,String>();
+	protected Map<String,String> attributes;
 	
 	/**
 	 * here for serialization
@@ -40,6 +40,8 @@ public class SSCAccount {
 	}
 
 	public long lastUpdate(String item) {
+		if(updateTimestampMap == null)
+			updateTimestampMap = new HashMap<String, Long>();
 		if(updateTimestampMap.get(item) == null)
 			updateTimestampMap.put(item, 0l);
 		return updateTimestampMap.get(item);
@@ -102,6 +104,8 @@ public class SSCAccount {
 	}
 
 	public Map<String, Long> getUpdateTimestampMap() {
+		if(updateTimestampMap == null)
+			updateTimestampMap = new HashMap<String, Long>();
 		return updateTimestampMap;
 	}
 
@@ -109,9 +113,9 @@ public class SSCAccount {
 		this.updateTimestampMap = updateTimestampMap;
 	}
 
-	
-	
 	public Map<String, String> getAttributes() {
+		if(attributes == null)
+			attributes = new TreeMap<String,String>();
 		return attributes;
 	}
 
@@ -120,6 +124,8 @@ public class SSCAccount {
 	}
 	
 	public void addAttribute(String key, String value) {
+		if(attributes == null)
+			attributes = new TreeMap<String,String>();
 		this.attributes.put(key, value);
 	}
 
@@ -148,7 +154,7 @@ public class SSCAccount {
 		return true;
 	}
 	
-	
-	
-	
+	public String toString() {
+		return accountId + " " + accessKey + " " + updateTimestampMap.toString() + " " + attributes.toString();
+	}
 }
