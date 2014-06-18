@@ -35,7 +35,7 @@ public class ELBCollector extends APICollector {
 			wrapper.addBalancer(elb.describeInstanceHealth(new DescribeInstanceHealthRequest(desc.getLoadBalancerName())));
 		}
 		
-		compareJson("wrapper", "elb.describeInstanceHealth");
+		compareJson(wrapper, "elb.describeInstanceHealth");
 
 		return stateChanges;
 	}
