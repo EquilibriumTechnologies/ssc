@@ -29,15 +29,15 @@ Run the main class com.eqt.ssc.SimpleStateCollector via the shell file found in 
 * cloudformation
 * cloudfront
 * dynamodb
-* *ec2*
-* *elasticloadbalancing*
+* **ec2** complete
+* **elasticloadbalancing** complete
 * elasticmapreduce
 * glacier
 * iam
 * rds
 * redshift
 * route53
-* *s3*
+* **s3** complete
 * sdb
 * sns
 * sqs
