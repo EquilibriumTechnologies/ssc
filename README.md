@@ -16,11 +16,31 @@ This project was created with the purpose of providing a historical capture of t
 Clone this repo.
 mvn clean package install
 
-For a single account monitoring, create an AwsCredentials.properties file in /src/main/resources with appropriate accesses. (See xxx for the one we use)
+in ssc/ssc-dist/target there will be a bin tar.  Extract that to your desired running location.
 
-Modify ssc.properties accordingly.
+For a single account monitoring, create an AwsCredentials.properties file in extracted_location/conf/ with appropriate accesses. (See below for a sample policy)
 
-Run com.eqt.ssc.SimpleStateCollector
+Modify ssc.properties accordingly, its got comments!
+
+Run the main class com.eqt.ssc.SimpleStateCollector via the shell file found in extracted_location/bin.
+
+#### Monitoring Capabilities
+* autoscaling
+* cloudformation
+* cloudfront
+* dynamodb
+* *ec2*
+* *elasticloadbalancing*
+* elasticmapreduce
+* glacier
+* iam
+* rds
+* redshift
+* route53
+* *s3*
+* sdb
+* sns
+* sqs
 
 
 #### Credits
