@@ -74,6 +74,10 @@ public class RecordBuilder {
 		return in;
 	}
 	
+	public static <T> T read(String json, Class<T> clazz) {
+		return gson.fromJson(json, clazz);
+	}
+	
 	public static SSCRecord read(Reader json) {
 		SSCRecord in = gson.fromJson(json, SSCRecord.class);
 		return in;
@@ -85,6 +89,18 @@ public class RecordBuilder {
 	
 	public static JsonElement treeObject(Object record) {
 		return gson.toJsonTree(record);
+	}
+
+	/**
+	 * rips the key portion of a serialized version of an SSCRecord and returns
+	 * it as found, not converted back to an object.
+	 * TODO: check for actually being an SSCrecord first.
+	 * @param record
+	 * @return
+	 */
+	public static String keyAsJson(String record) {
+		JsonElement jsonElement = parser.parse(record);
+		return jsonElement.getAsJsonObject().getAsJsonObject("key").toString();
 	}
 	
 	/**
