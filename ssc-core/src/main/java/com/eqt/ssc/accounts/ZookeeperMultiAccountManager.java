@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +53,7 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 	protected static final String _AM_BASE_PATH = "/ssc_am";
 	private static final String _AM_DISCOVERY_PATH = _AM_BASE_PATH + "/discovery";
 	protected static final String _AM_ACCOUNTS_PATH = _AM_BASE_PATH + "/accounts";
+	AtomicBoolean keepRunning = new AtomicBoolean(true);
 
 	@SuppressWarnings("unchecked")
 	public ZookeeperMultiAccountManager() throws Exception {
@@ -99,6 +101,7 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				LOG.info("closing client");
+				keepRunning.set(false);
 				// CloseableUtils.closeQuietly(serviceDiscovery);
 				CloseableUtils.closeQuietly(accountCache);
 				CloseableUtils.closeQuietly(managerCache);
@@ -109,8 +112,7 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 
 	public void run() {
 
-		// TODO: add in a shutdown flag or something
-		while (true) {
+		while (keepRunning.get()) {
 
 			// check on how many other managers are running.
 
