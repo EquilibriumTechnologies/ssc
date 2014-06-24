@@ -74,6 +74,7 @@ public class SimpleStateCollector {
 			webServer = new HttpServer();
 			
 			// setup our provider class for working with.
+			//--Russ: I don't like the use of the generic term "provider". Should be something like "credentialsprovider"
 			String provClass = Props.getProp("ssc.provider.class.name",
 					"com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider");
 	
@@ -92,6 +93,10 @@ public class SimpleStateCollector {
 			client = CuratorFrameworkFactory.newClient(zkConnectString, retryPolicy);
 			client.start();
 	
+			//setup thread pool
+			executor = new ThreadPoolExecutor(50, 1000, 1, TimeUnit.MINUTES,
+					new ArrayBlockingQueue<Runnable>(10));
+			
 			// TODO: dunno if this works yet
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
@@ -113,18 +118,16 @@ public class SimpleStateCollector {
 			});
 			shutDownHookRegistered = true;
 	
-			//setup thread pool
-			executor = new ThreadPoolExecutor(50, 1000, 1, TimeUnit.MINUTES,
-					new ArrayBlockingQueue<Runnable>(10));
-			
 			//TODO: make the classloaded parent classes force a getComponent() method
 			//for inclusion.
+			//--Russ: ^------What does this mean?
 			
 		} catch(Throwable e) {
 			LOG.error("Failure to get everything started, force quitting",e);
 			if(!shutDownHookRegistered) {
 				LOG.info("closing client");
 				CloseableUtils.closeQuietly(client);
+				CloseableUtils.closeQuietly(webServer);
 				if(executor != null)
 					executor.shutdownNow();
 				
@@ -186,7 +189,7 @@ public class SimpleStateCollector {
 					}
 				} else if (future.isCancelled()) {
 					LOG.warn("A task was cancelled, that shouldnt have happened....");
-					tasks.remove(t);
+					killList.add(t);
 				} else {
 					LOG.debug("Task still running " + t.getAccountId());
 				}
@@ -204,8 +207,8 @@ public class SimpleStateCollector {
 				LOG.debug("sleep");
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//Shouldn't have been interrupted... better exit
+				System.exit(2);
 			}
 		}
 	}

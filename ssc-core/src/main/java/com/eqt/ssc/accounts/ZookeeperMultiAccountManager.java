@@ -217,7 +217,8 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
-				// eat it
+				//This means something is wrong ... better stop running
+				keepRunning.set(false);
 			}
 
 		}

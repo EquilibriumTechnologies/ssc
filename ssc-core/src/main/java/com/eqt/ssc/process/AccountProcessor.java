@@ -98,7 +98,7 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 		//send an update back out to the AM for recording.
 		if(ran) {
 			LOG.info("calling addAccount");
-			aman.addAccount(token);
+			aman.addAccount(token); //--Russ: I think this is a bug because it won't ever try to run again if no Collectors ran this time
 		}
 		
 		//TODO: more granular metrics reporting
