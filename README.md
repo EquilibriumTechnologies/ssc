@@ -10,6 +10,7 @@ This project was created with the purpose of providing a historical capture of t
 * Minimize storage by only storing captures when something pertinant has changed within the state.
 * Support a simple pluggable capture API for enabling, disabling, and extending what is captured.
 * Support monitoring of multiple accounts.
+* Provide framework for producing analytics on the captured data for metrics/reporting purposes.
 
 #### Getting started:
 
@@ -33,7 +34,7 @@ Modify ssc.properties accordingly, its got comments!
 
 Run the main class com.eqt.ssc.SimpleStateCollector via the shell file found in extracted_location/bin.
 
-#### Monitoring Capabilities
+#### Collection Capabilities
 * autoscaling
 * cloudformation
 * cloudfront
