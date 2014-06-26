@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -88,7 +89,7 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 			} catch(Throwable t) {
 				//TODO: write this error out to a store.
 				LOG.error("boom, ungood, cannot run collector: " + collector.getCollectorName(),t);
-				throw new Exception(t);
+				throw new ExecutionException(t);
 			}
 		}
 		long now = System.currentTimeMillis();
