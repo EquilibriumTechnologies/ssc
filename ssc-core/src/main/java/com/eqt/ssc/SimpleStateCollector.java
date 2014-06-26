@@ -13,10 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -39,9 +35,6 @@ public class SimpleStateCollector {
 	StateEngine state;
 	
 	boolean shutDownHookRegistered = false;
-	
-	// Curator bits
-	private CuratorFramework client;
 	
 	//threadpool for workers
 	ThreadPoolExecutor executor;
@@ -89,19 +82,13 @@ public class SimpleStateCollector {
 			if (zkConnectString == null || "".equals(zkConnectString))
 				throw new IllegalStateException("must set ssc.dist.zookeeper.connect.string to use this class");
 	
-			RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-			client = CuratorFrameworkFactory.newClient(zkConnectString, retryPolicy);
-			client.start();
-	
 			//setup thread pool
 			executor = new ThreadPoolExecutor(50, 1000, 1, TimeUnit.MINUTES,
 					new ArrayBlockingQueue<Runnable>(10));
 			
-			// TODO: dunno if this works yet
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
 					LOG.info("closing client");
-					CloseableUtils.closeQuietly(client);
 					CloseableUtils.closeQuietly(webServer);
 					if(executor != null)
 						executor.shutdown();
@@ -118,15 +105,10 @@ public class SimpleStateCollector {
 			});
 			shutDownHookRegistered = true;
 	
-			//TODO: make the classloaded parent classes force a getComponent() method
-			//for inclusion.
-			//--Russ: ^------What does this mean?
-			
 		} catch(Throwable e) {
 			LOG.error("Failure to get everything started, force quitting",e);
 			if(!shutDownHookRegistered) {
 				LOG.info("closing client");
-				CloseableUtils.closeQuietly(client);
 				CloseableUtils.closeQuietly(webServer);
 				if(executor != null)
 					executor.shutdownNow();
