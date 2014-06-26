@@ -155,6 +155,11 @@ public class SSCAccount {
 	}
 	
 	public String toString() {
-		return accountId + " " + accessKey + " " + updateTimestampMap.toString() + " " + attributes.toString();
+		String str = accountId + " " + accessKey;
+		if(updateTimestampMap != null)
+			str += " " + updateTimestampMap.toString();
+		if(attributes != null)
+			str += " " + attributes.toString();
+		return str;
 	}
 }
