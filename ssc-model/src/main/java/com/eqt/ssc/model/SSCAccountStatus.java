@@ -19,7 +19,7 @@ public class SSCAccountStatus {
 
 	@Override
 	public String toString() {
-		return (success ? "sucessfull " : "failed") + " capture of " + changes + " changes in "
+		return (success ? "sucessfull" : "failed") + " capture of " + changes + " changes in "
 				+ (totalCaptureTimeMS / 1000.0d) + " " + token;
 	}
 }
