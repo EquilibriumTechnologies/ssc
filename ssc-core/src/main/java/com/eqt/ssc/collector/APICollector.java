@@ -20,7 +20,7 @@ public abstract class APICollector {
 	
 	private Log LOG = LogFactory.getLog(APICollector.class);
 
-	private Token token;
+	protected Token token;
 	protected StateEngine state;
 	
 	protected static final String PROP_DEFAULT_INTERVAL = "ssc.account.check.interval.default.seconds";
