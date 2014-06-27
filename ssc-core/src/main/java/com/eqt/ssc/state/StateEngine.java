@@ -3,6 +3,7 @@ package com.eqt.ssc.state;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -123,7 +124,19 @@ public class StateEngine {
 		}
 	}
 	
-//	public abstract String getLastKnown(SSCKey newRecord);
+
+	/**
+	 * This is used for moving bulk file downloads into the logging S3 bucket. It still requires 
+	 * an account as it will still log underneath an accounts area.
+	 * @param account  account to associate file with
+	 * @param key object name to give file
+	 * @param file file to upload.
+	 */
+	public void writeFile(SSCKey record, String key, File file) {
+		//TODO: retry a few times?
+		s3.putObject(key, key, file);
+	}
+	
 	public String getLastKnown(SSCKey newRecord) {
 		String last = valueMap.get(mapKey(newRecord));
 		//hitup s3
