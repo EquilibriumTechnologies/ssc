@@ -52,6 +52,33 @@ Run the main class com.eqt.ssc.SimpleStateCollector via the shell file found in 
 * sns
 * sqs
 
+#### Account Management
+##### Single Account
+Use com.eqt.ssc.accounts.SameCredAccountManager
+This will grab off your local ClasspathPropertiesFileCredentialsProvider that your account likely uses internally.
+Really good for testing out things.
+
+##### By ZK
+Use com.eqt.ssc.accounts.ZookeeperMultiAccountManager
+This stores data into ZK to allow for more than 1 account to be tracked.
+
+#### REST API
+
+SSC exposes a bare minimum REST api currently, found at localhost:8192 by default on each server running SSC.
+
+List Known Accounts:
+
+```bash
+curl -X GET -H "Content-type:application/json" localhost:8182/api/managedAccounts
+{"accounts":["222222222222","333333333333"]}
+```
+
+Add a new Account:
+
+```bash
+curl -X POST -H "Content-type:application/json" localhost:8182/api/addAccount -d \
+'{"accountId":"222222222222","accessKey":"ANAWESOMEKEY","secretKey":"SOMEAWESOMEKEY","s3BucketName":"yourbucketloggings3","s3Path":"dir/with/s3/logs"}'
+```
 
 #### Credits
 https://github.com/algesten/jsondiff for a sweet json diff engine, embedded locally into this souce.
