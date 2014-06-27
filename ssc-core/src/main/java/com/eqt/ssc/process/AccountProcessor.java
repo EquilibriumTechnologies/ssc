@@ -47,7 +47,7 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 				Constructor<?> cons = clazz.getConstructor(Token.class, StateEngine.class);
 				APICollector newInstance = (APICollector) cons.newInstance(token, state);
 				this.collectors.add(newInstance);
-				LOG.info("added instance: " + clazz.getName());
+//				LOG.info("added instance: " + clazz.getName());
 
 			} catch (ClassNotFoundException e) {
 				throw new IllegalStateException("could not find class", e);
@@ -88,18 +88,16 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 				//TODO: write this error out to a store.
 			} catch(Throwable t) {
 				//TODO: write this error out to a store.
-				LOG.error("boom, ungood, cannot run collector: " + collector.getCollectorName(),t);
+				LOG.error("boom, ungood, cannot run collector: " + collector.getCollectorName() + " for account: " + token.getAccountId(),t);
 				throw new ExecutionException(t);
 			}
 		}
 		long now = System.currentTimeMillis();
 		
-		LOG.info("###########################");
-		
 		//send an update back out to the AM for recording.
 		if(ran) {
 			LOG.info("calling addAccount");
-			aman.addAccount(token); //--Russ: I think this is a bug because it won't ever try to run again if no Collectors ran this time
+			aman.addAccount(token);
 		}
 		
 		//TODO: more granular metrics reporting
