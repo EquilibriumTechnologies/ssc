@@ -163,7 +163,7 @@ public class SimpleStateCollector {
 						LOG.info(sscAccountStatus);
 					} catch (InterruptedException | ExecutionException e) {
 						//TODO: create error log to write to.
-						LOG.warn("throwing up working on an account", e);
+						LOG.warn("throwing up working on an account " + t.getAccountId(), e);
 					} finally {
 						// prep to remove from the map
 						killList.add(t);
