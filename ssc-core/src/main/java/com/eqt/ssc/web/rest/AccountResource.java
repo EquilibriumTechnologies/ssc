@@ -5,12 +5,15 @@ import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.eqt.ssc.accounts.AccountManager;
 import com.eqt.ssc.accounts.AccountManagerFactory;
@@ -19,6 +22,8 @@ import com.eqt.ssc.model.Token;
 
 @Path("/")
 public class AccountResource {
+	
+	Log LOG = LogFactory.getLog(AccountResource.class);
 
 	//our 'dao'
 	AccountManager man = AccountManagerFactory.getInstance();
@@ -31,6 +36,7 @@ public class AccountResource {
 	@Path("managedAccounts")
 	@Produces(MediaType.APPLICATION_JSON)
 	public ManagedAccounts getManagedAccounts() {
+		LOG.info("getManagedAccounts called");
 		ManagedAccounts m = new ManagedAccounts();
 		List<Token> accounts = man.getAccounts();
 		for(Token t : accounts)
@@ -38,13 +44,14 @@ public class AccountResource {
 		return m;
 	}
 
-	@PUT
+	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("addAccount")
 	public Response putAccount(SSCAccount account) {
 		if(account != null) {
 			try {
+				LOG.info("ADD account request: " + account);
 				man.addAccount(account);
 			} catch (UnsupportedOperationException e) {
 				return Response.status(Status.NOT_ACCEPTABLE).build();
