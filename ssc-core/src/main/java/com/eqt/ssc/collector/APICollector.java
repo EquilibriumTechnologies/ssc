@@ -55,7 +55,7 @@ public abstract class APICollector {
 	 * use this to grab the interval frequency in which we check on.
 	 */
 	public int getIntervalTime() {
-		return Props.getPropInt(PROP_DEFAULT_INTERVAL, getCustomIntervalProperty(),"57")*1000;
+		return Props.getPropInt(getCustomIntervalProperty(),PROP_DEFAULT_INTERVAL,"57")*1000;
 	}
 	
 	/**
