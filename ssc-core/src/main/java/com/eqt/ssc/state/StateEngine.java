@@ -134,7 +134,7 @@ public class StateEngine {
 	 */
 	public void writeFile(SSCKey record, String key, File file) {
 		//TODO: retry a few times?
-		s3.putObject(key, key, file);
+		s3.putObject(bucketName, buildBasePath(record) + "/" + key, file);
 	}
 	
 	public String getLastKnown(SSCKey newRecord) {
