@@ -81,6 +81,8 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 					token.use(collector.getCollectorName());
 					total += collector.collect();
 					ran = true;
+				} else {
+					LOG.debug("too soon for: " + collector.getCollectorName() + " " + collector.getIntervalTime());
 				}
 			} catch (AmazonServiceException e) {
 				//typically access denied, this is a big deal.
