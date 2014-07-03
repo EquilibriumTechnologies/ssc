@@ -29,6 +29,7 @@ public class Token extends SSCAccount {
 		this.s3BucketName = account.getS3BucketName();
 		this.s3Path = account.getS3Path();
 		this.updateTimestampMap = new HashMap<String, Long>(account.getUpdateTimestampMap());
+		this.attributes = new HashMap<String,String>(account.getAttributes());
 		this.creds = creds;
 	}
 	
