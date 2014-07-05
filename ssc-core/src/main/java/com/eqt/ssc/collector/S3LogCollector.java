@@ -161,21 +161,24 @@ public class S3LogCollector extends APICollector {
 			listObjects = s3.listNextBatchOfObjects(listObjects);
 		} while (listObjects.isTruncated() && totalFiles < maxBatch);
 
-		// all done writing file out, close OS, then push to s3.
-		try {
-			LOG.info("finished writting file: " + outputStreamKey);
-			OutputStream os2 = getOS(null);
-			os2.flush();
-			os2.close();
-			String objName = outputStreamKey + "-" + lastObjectName + ".gz";
-			SSCKey key = new SSCKey("s3", "s3logs", token.getAccountId(), "unknown");
-			//TODO: retry more than once on error.
-			state.writeFile(key, objName, localFile); 
-			localFile.delete();
-			token.addAttribute(S3_LOG_LAST_MARKER, lastObjectName);
-		} catch (IOException e) {
-			LOG.error("could not write to S3",e);
-			throw new RuntimeException(e);
+		//see if we wrote anything
+		if(totalFiles > 0) {
+			// all done writing file out, close OS, then push to s3.
+			try {
+				LOG.info("finished writting file: " + outputStreamKey);
+				OutputStream os2 = getOS(null);
+				os2.flush();
+				os2.close();
+				String objName = outputStreamKey + "-" + lastObjectName + ".gz";
+				SSCKey key = new SSCKey("s3", "s3logs", token.getAccountId(), "unknown");
+				//TODO: retry more than once on error.
+				state.writeFile(key, objName, localFile); 
+				localFile.delete();
+				token.addAttribute(S3_LOG_LAST_MARKER, lastObjectName);
+			} catch (IOException e) {
+				LOG.error("could not write to S3",e);
+				throw new RuntimeException(e);
+			}
 		}
 
 		long now = System.currentTimeMillis();
