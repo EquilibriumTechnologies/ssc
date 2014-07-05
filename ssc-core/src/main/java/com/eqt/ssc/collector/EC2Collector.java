@@ -21,7 +21,7 @@ public class EC2Collector extends APICollector {
 
 	private AmazonEC2 ec2;
 	
-	public EC2Collector(Token token, StateEngine state) {
+	public EC2Collector(StateEngine state) {
 		super(state);
 	}
 
