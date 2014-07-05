@@ -8,6 +8,7 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingCli
 import com.amazonaws.services.elasticloadbalancing.model.DescribeInstanceHealthRequest;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.model.aws.LoadBalancersHealth;
 import com.eqt.ssc.state.StateEngine;
@@ -16,17 +17,22 @@ public class ELBCollector extends APICollector {
 	Log LOG = LogFactory.getLog(ELBCollector.class);
 	AmazonElasticLoadBalancing elb = null;
 
-	public ELBCollector(Token token, StateEngine state) {
-		super(token, state);
-		elb = new AmazonElasticLoadBalancingClient(getCreds());
+	public ELBCollector(StateEngine state) {
+		super(state);
 	}
 
+	private void init(Token token) {
+		elb = new AmazonElasticLoadBalancingClient(token.getCredentials());
+	}
+	
 	@Override
-	public int collect() {
-		compareObjects(elb.describeLoadBalancerPolicies(),"elb.describeLoadBalancerPolicies");
+	public SSCAccountStatus collect(Token token) {
+		init(token);
+		
+		compareObjects(elb.describeLoadBalancerPolicies(),"elb.describeLoadBalancerPolicies", token.getAccountId());
 		
 		DescribeLoadBalancersResult balancers = elb.describeLoadBalancers();
-		compareObjects(balancers,"elb.describeLoadBalancers");
+		compareObjects(balancers,"elb.describeLoadBalancers", token.getAccountId());
 		
 		//TODO: change this to hold DescribeInstanceHealthResult
 		LoadBalancersHealth wrapper = new LoadBalancersHealth();
@@ -35,9 +41,9 @@ public class ELBCollector extends APICollector {
 			wrapper.addBalancer(elb.describeInstanceHealth(new DescribeInstanceHealthRequest(desc.getLoadBalancerName())));
 		}
 		
-		compareJson(wrapper, "elb.describeInstanceHealth");
+		compareJson(wrapper, "elb.describeInstanceHealth", token.getAccountId());
 
-		return stateChanges;
+		return new SSCAccountStatus(token,stateChanges);
 	}
 
 	@Override

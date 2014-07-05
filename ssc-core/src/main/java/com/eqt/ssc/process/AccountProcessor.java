@@ -44,8 +44,8 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 		for (String c : collectors) {
 			try {
 				Class<? extends APICollector> clazz = (Class<? extends APICollector>) Class.forName(c);
-				Constructor<?> cons = clazz.getConstructor(Token.class, StateEngine.class);
-				APICollector newInstance = (APICollector) cons.newInstance(token, state);
+				Constructor<?> cons = clazz.getConstructor(StateEngine.class);
+				APICollector newInstance = (APICollector) cons.newInstance(state);
 				this.collectors.add(newInstance);
 //				LOG.info("added instance: " + clazz.getName());
 
@@ -79,7 +79,10 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 				long curr = System.currentTimeMillis();
 				if(token.lastUpdate(collector.getCollectorName()) + collector.getIntervalTime() < curr) {
 					token.use(collector.getCollectorName());
-					total += collector.collect();
+					SSCAccountStatus status = collector.collect(token);
+					//take the token, may have had changes
+					token = status.token;
+					total+= status.changes;
 					ran = true;
 				} else {
 					LOG.debug("too soon for: " + collector.getCollectorName() + " " + collector.getIntervalTime());

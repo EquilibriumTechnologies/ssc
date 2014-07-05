@@ -17,6 +17,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.SSCKey;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.state.StateEngine;
@@ -58,9 +59,8 @@ public class S3LogCollector extends APICollector {
 	int maxCache = 1;
 	int maxBatch = 2;
 	
-	public S3LogCollector(Token token, StateEngine state) {
-		super(token, state);
-		s3 = new AmazonS3Client(getCreds());
+	public S3LogCollector(StateEngine state) {
+		super(state);
 		
 		//TODO: have a prop to override
 		localPath = System.getProperty("java.io.tmpdir");
@@ -78,15 +78,23 @@ public class S3LogCollector extends APICollector {
 			throw new IllegalStateException("Local Dir is not a dir: " + localPath);
 		}
 		
-		bucketName = token.getS3BucketName();
-		bucketPrefix = token.getS3Path();
-		
 		maxCache = Props.getPropInt("ssc.collector.s3logcollector.maxCache");
 		maxBatch = Props.getPropInt("ssc.collector.s3logcollector.maxBatch");
 	}
 
+	private void init(Token token) {
+		s3 = new AmazonS3Client(token.getCredentials());
+		bucketName = token.getS3BucketName();
+		bucketPrefix = token.getS3Path();
+	}
+	
 	@Override
-	public int collect() {
+	public SSCAccountStatus collect(Token token) {
+		//finish init
+		init(token);
+		
+		SSCAccountStatus status = new SSCAccountStatus(token);
+		
 		long totalBytes = 0;
 		int totalFiles = 0;
 		long start = System.currentTimeMillis();
@@ -94,7 +102,7 @@ public class S3LogCollector extends APICollector {
 		//its possible to not have a bucket setup for S3Logging, fire a warn and return.
 		if(bucketName == null) {
 			LOG.warn("S3Log collecting is enabled but no bucket to pull from is defined for account: " +  token.getAccountId());
-			return 0;
+			return status;
 		}
 
 		LOG.debug("listing s3logs for bucket: " + bucketName + " with prefix: " + bucketPrefix);
@@ -174,7 +182,8 @@ public class S3LogCollector extends APICollector {
 		LOG.debug(totalFiles + " files downloaded:  " + (totalBytes / 1000.0 / 1000.0) + " mb downloaded in "
 				+ ((now - start) / 1000) + " seconds.");
 
-		return totalFiles;
+		status.changes = totalFiles;
+		return status;
 	}
 
 	@Override

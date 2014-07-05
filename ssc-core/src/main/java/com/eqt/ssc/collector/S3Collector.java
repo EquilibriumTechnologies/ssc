@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
+import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.model.aws.AllBucketsInDetail;
 import com.eqt.ssc.model.aws.BucketWrapper;
@@ -19,13 +20,18 @@ public class S3Collector extends APICollector {
 	private Log LOG = LogFactory.getLog(S3Collector.class);
 	private AmazonS3 s3;
 
-	public S3Collector(Token token, StateEngine state) {
-		super(token, state);
-		s3 = new AmazonS3Client(getCreds());
+	public S3Collector(StateEngine state) {
+		super(state);
 	}
 
+	private void init(Token token) {
+		s3 = new AmazonS3Client(token.getCredentials());
+	}
+	
 	@Override
-	public int collect() {
+	public SSCAccountStatus collect(Token token) {
+		init(token);
+		
 		//grab all the buckets
 		List<Bucket> buckets = s3.listBuckets();
 		LOG.debug(buckets.size() + " buckets found");
@@ -58,9 +64,9 @@ public class S3Collector extends APICollector {
 		AllBucketsInDetail detail = new AllBucketsInDetail();
 		detail.setBuckets(wrappers);
 		//compare all the buckets
-		compareJson(detail, "ssc.allBucketsDetail");
+		compareJson(detail, "ssc.allBucketsDetail", token.getAccountId());
 
-		return stateChanges;
+		return new SSCAccountStatus(token, stateChanges);
 	}
 
 	@Override

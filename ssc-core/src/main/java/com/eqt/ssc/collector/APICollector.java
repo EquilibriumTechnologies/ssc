@@ -3,7 +3,7 @@ package com.eqt.ssc.collector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.amazonaws.auth.AWSCredentials;
+import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.SSCRecord;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.serde.RecordBuilder;
@@ -20,7 +20,7 @@ public abstract class APICollector {
 	
 	private Log LOG = LogFactory.getLog(APICollector.class);
 
-	protected Token token;
+	//used for writting out logs
 	protected StateEngine state;
 	
 	protected static final String PROP_DEFAULT_INTERVAL = "ssc.account.check.interval.default.seconds";
@@ -28,17 +28,8 @@ public abstract class APICollector {
 	//number that can be used to track the number of api calls that changed.
 	protected int stateChanges = 0;
 	
-	public APICollector(Token token, StateEngine state) {
+	public APICollector(StateEngine state) {
 		this.state = state;
-		this.token = token;
-	}
-	
-	protected AWSCredentials getCreds() {
-		return token.getCredentials();
-	}
-	
-	protected String getAccountId() {
-		return token.getAccountId();
 	}
 	
 	public int getStateChanges() {
@@ -47,9 +38,9 @@ public abstract class APICollector {
 	
 	/**
 	 * implement each state check in here.
-	 * @return number of state calls that changed.
+	 * @return SSCAccountStatus with the updated token and any other stats to record
 	 */
-	public abstract int collect();
+	public abstract SSCAccountStatus collect(Token token);
 	
 	/**
 	 * use this to grab the interval frequency in which we check on.
@@ -81,8 +72,8 @@ public abstract class APICollector {
 	 * @return true if the state was changed
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends Object> boolean compareObjects(T object, String methodName) {
-		SSCRecord record = RecordBuilder.createRecord(object, methodName, getAccountId());
+	protected <T extends Object> boolean compareObjects(T object, String methodName, String accoundId) {
+		SSCRecord record = RecordBuilder.createRecord(object, methodName, accoundId);
 		String lastKnown = state.getLastKnown(record.key);
 		
 		//never seen before, must be new!
@@ -117,8 +108,8 @@ public abstract class APICollector {
 	 * @param methodName
 	 * @return
 	 */
-	protected boolean compareJson(Object o, String methodName) {
-		SSCRecord record = RecordBuilder.createRecord(o, methodName, getAccountId());
+	protected boolean compareJson(Object o, String methodName, String accoundId) {
+		SSCRecord record = RecordBuilder.createRecord(o, methodName, accoundId);
 		String lastKnown = state.getLastKnown(record.key);
 
 		//never seen before, must be new!

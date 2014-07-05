@@ -77,6 +77,7 @@ public class SimpleStateCollector {
 	
 			state = new StateEngine(new AmazonS3Client(this.provider));
 	
+			//TODO: i think this is unused
 			// setup zk connectivity
 			String zkConnectString = Props.getProp("ssc.dist.zookeeper.connect.string");
 			if (zkConnectString == null || "".equals(zkConnectString))
