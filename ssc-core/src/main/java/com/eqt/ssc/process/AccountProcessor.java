@@ -15,16 +15,16 @@ import com.eqt.ssc.accounts.AccountManager;
 import com.eqt.ssc.accounts.AccountManagerFactory;
 import com.eqt.ssc.collector.APICollector;
 import com.eqt.ssc.model.SSCAccountStatus;
+import com.eqt.ssc.model.SSCError;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.state.StateEngine;
 import com.eqt.ssc.util.Props;
 
-public class AccountProcessor implements Callable<SSCAccountStatus> {
+public class AccountProcessor extends APICollector implements Callable<SSCAccountStatus> {
 	private static final Log LOG = LogFactory.getLog(AccountProcessor.class);
 
 	private List<APICollector> collectors = new ArrayList<APICollector>();
 	private Token token;
-	protected StateEngine state;
 	protected AccountManager aman = null;
 
 	/**
@@ -33,8 +33,8 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 	 */
 	@SuppressWarnings("unchecked")
 	public AccountProcessor(Token token, StateEngine state) {
+		super(state);
 		this.token = token;
-		this.state = state;
 
 		String prop = Props.getProp("ssc.process.api.collectors");
 		if (prop == null || "".equals(prop))
@@ -69,6 +69,12 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 		aman = AccountManagerFactory.getInstance();
 	}
 
+	@Override
+	public SSCAccountStatus collect(Token token) {
+		throw new UnsupportedOperationException("not intended for use as an APICollector, this runs them.");
+	}
+
+	
 	public SSCAccountStatus call() throws Exception {
 		long start = System.currentTimeMillis();
 		boolean ran = false;
@@ -89,11 +95,13 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 				}
 			} catch (AmazonServiceException e) {
 				//typically access denied, this is a big deal.
-				LOG.error("unable to interact with " + collector.getCollectorName(), e);
-				//TODO: write this error out to a store.
+				LOG.error("unable to interact with " + collector.getCollectorName() + " for account: " + token.getAccountId(), e);
+				SSCError error = new SSCError(e,collector.getCollectorName(),token.getAccountId());
+				compareObjects(error, SSCError.SSCERROR, token.getAccountId());
 			} catch(Throwable t) {
-				//TODO: write this error out to a store.
 				LOG.error("boom, ungood, cannot run collector: " + collector.getCollectorName() + " for account: " + token.getAccountId(),t);
+				SSCError error = new SSCError(t,collector.getCollectorName(),token.getAccountId());
+				compareObjects(error, SSCError.SSCERROR, token.getAccountId());
 				throw new ExecutionException(t);
 			}
 		}
@@ -115,4 +123,9 @@ public class AccountProcessor implements Callable<SSCAccountStatus> {
 		return status;
 	}
 
+	@Override
+	protected String getCustomIntervalProperty() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
