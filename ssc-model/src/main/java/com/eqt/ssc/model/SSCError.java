@@ -23,7 +23,7 @@ public class SSCError {
 		StringWriter sw = new StringWriter();
 		PrintWriter writer = new PrintWriter(sw);
 		t.printStackTrace(writer);
-		this.exception = writer.toString();
+		this.exception = sw.toString();
 		this.message = t.getMessage();
 		this.timeOfError = System.currentTimeMillis();
 		this.collector = collector;
