@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.curator.utils.CloseableUtils;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.eqt.ssc.accounts.AccountManager;
 import com.eqt.ssc.accounts.AccountManagerFactory;
@@ -33,6 +34,7 @@ public class SimpleStateCollector {
 	private AWSCredentialsProvider provider;
 	private AccountManager aMan;
 	StateEngine state;
+	AmazonS3Client s3Client;
 	
 	boolean shutDownHookRegistered = false;
 	
@@ -75,7 +77,9 @@ public class SimpleStateCollector {
 					.forName(provClass);
 			this.provider = clazz.newInstance();
 	
-			state = new StateEngine(new AmazonS3Client(this.provider));
+			AmazonS3Client s3Client = new AmazonS3Client(this.provider);
+			s3Client.setRegion(RegionUtils.getRegion(Props.getProp("ssc.s3.bucket.region")));
+			state = new StateEngine(s3Client);
 	
 			//TODO: i think this is unused
 			// setup zk connectivity

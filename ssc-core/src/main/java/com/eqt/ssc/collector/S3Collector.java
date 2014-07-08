@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
@@ -15,6 +16,7 @@ import com.eqt.ssc.model.Token;
 import com.eqt.ssc.model.aws.AllBucketsInDetail;
 import com.eqt.ssc.model.aws.BucketWrapper;
 import com.eqt.ssc.state.StateEngine;
+import com.eqt.ssc.util.Props;
 
 public class S3Collector extends APICollector {
 	private Log LOG = LogFactory.getLog(S3Collector.class);
@@ -26,6 +28,7 @@ public class S3Collector extends APICollector {
 
 	private void init(Token token) {
 		s3 = new AmazonS3Client(token.getCredentials());
+		s3.setRegion(RegionUtils.getRegion(Props.getProp("ssc.s3.bucket.region")));
 	}
 	
 	@Override

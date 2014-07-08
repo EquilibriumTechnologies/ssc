@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -84,6 +85,8 @@ public class S3LogCollector extends APICollector {
 
 	private void init(Token token) {
 		s3 = new AmazonS3Client(token.getCredentials());
+		s3.setRegion(RegionUtils.getRegion(Props.getProp("ssc.s3.bucket.region")));
+
 		bucketName = token.getS3BucketName();
 		bucketPrefix = token.getS3Path();
 	}
