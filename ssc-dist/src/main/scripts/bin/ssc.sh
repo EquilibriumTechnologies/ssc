@@ -16,10 +16,23 @@ SSC_CLASSPATH=$bin/../conf:$SSC_CLASSPATH
 export SSC_HOME="$bin"/..
 PID_FILE=$SSC_HOME/pids/ssc.pid
 
+JAVA_DIR=$JAVA_HOME
+
+if [[ -d "$JAVA_DIR" ]]; then
+  echo "found java: $JAVA_DIR";
+else
+  if [[ -e "$(which java)" ]]; then
+    JAVA_DIR=$(dirname $(which java))
+  else
+    echo "cannot locate a java anywhere, exiting"
+    exit 1
+  fi
+fi
+
 function start () {
   PROC_NAME=ssc-server-$HOSTNAME
   echo "starting: $PROC_NAME  $SSC_CLASSPATH"
-  "$JAVA_HOME"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector
+  "$JAVA_DIR"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -Djsse.enableSNIExtension=false -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector
   #nohup "$JAVA_HOME"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector  2>&1 < /dev/null &
   echo $! > $PID_FILE
   echo SSC starting as process `cat $PID_FILE`.
