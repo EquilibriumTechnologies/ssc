@@ -63,7 +63,7 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 			wrap = true;
 			wrapperClass = (Class<? extends AWSCredentialsProvider>) Class.forName(Props
 					.getProp("ssc.account.manager.provider"));
-			wrapCon = wrapperClass.getConstructor(AWSCredentialsProvider.class, SSCAccount.class);
+			wrapCon = wrapperClass.getConstructor(SSCFixedProvider.class);
 			LOG.debug("constructor loaded: " + wrapCon.getName());
 		} else {
 			LOG.debug("no wrapper defined");
@@ -160,11 +160,10 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 					// nope, lets set it up then.
 					if (!has) {
 						//TODO: rework this, maybe make Token a provider?
-						AWSCredentialsProvider provider = new SSCFixedProvider(account.getAccessKey(),
-								account.getSecretKey());
+						AWSCredentialsProvider provider = new SSCFixedProvider(account);
 						if (wrap) {
 							try {
-								provider = (AWSCredentialsProvider) wrapCon.newInstance(provider, account);
+								provider = (AWSCredentialsProvider) wrapCon.newInstance(provider);
 								LOG.debug("wrapped provider");
 
 							} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {

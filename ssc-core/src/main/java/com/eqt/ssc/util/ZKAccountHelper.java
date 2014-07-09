@@ -46,7 +46,10 @@ public class ZKAccountHelper extends ZookeeperMultiAccountManager {
 		
 		// validate account:
 		try {
-			AWSCredentialsProvider provider = new SSCFixedProvider(args[1], args[2]);
+			SSCAccount account = new SSCAccount();
+			account.setAccessKey(args[1]);
+			account.setSecretKey(args[2]);
+			AWSCredentialsProvider provider = new SSCFixedProvider(account);
 
 			if (args.length == 4)
 				id = args[3];
