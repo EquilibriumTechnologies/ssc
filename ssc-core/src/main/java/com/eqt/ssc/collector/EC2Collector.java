@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
@@ -14,6 +15,7 @@ import com.amazonaws.services.ec2.model.DescribeSnapshotsRequest;
 import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.state.StateEngine;
+import com.eqt.ssc.util.Props;
 
 public class EC2Collector extends APICollector {
 	
@@ -27,6 +29,8 @@ public class EC2Collector extends APICollector {
 
 	private void init(Token token) {
 		this.ec2 = new AmazonEC2Client(token.getCredentials());
+		if(Props.getProp("ssc.ec2.region.override") != null)
+			ec2.setRegion(RegionUtils.getRegion(Props.getProp("ssc.ec2.region.override")));
 	}
 	
 	

@@ -3,6 +3,7 @@ package com.eqt.ssc.collector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeInstanceHealthRequest;
@@ -12,6 +13,7 @@ import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.model.aws.LoadBalancersHealth;
 import com.eqt.ssc.state.StateEngine;
+import com.eqt.ssc.util.Props;
 
 public class ELBCollector extends APICollector {
 	Log LOG = LogFactory.getLog(ELBCollector.class);
@@ -23,6 +25,9 @@ public class ELBCollector extends APICollector {
 
 	private void init(Token token) {
 		elb = new AmazonElasticLoadBalancingClient(token.getCredentials());
+		if(Props.getProp("ssc.ec2.region.override") != null)
+			elb.setRegion(RegionUtils.getRegion(Props.getProp("ssc.ec2.region.override")));
+
 	}
 	
 	@Override
