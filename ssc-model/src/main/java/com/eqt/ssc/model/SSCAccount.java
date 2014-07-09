@@ -120,7 +120,7 @@ public class SSCAccount {
 	}
 
 	public void setAttributes(Map<String, String> attributes) {
-		this.attributes = attributes;
+		getAttributes().putAll(attributes);
 	}
 	
 	public void addAttribute(String key, String value) {
