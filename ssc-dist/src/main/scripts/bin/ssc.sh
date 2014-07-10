@@ -3,7 +3,7 @@ bin=`cd "$bin"; pwd`
 
 #conf stuff to pull out to its own file?
 HOSTNAME=`hostname`
-SSC_JVM_OPTIONS=""
+SSC_JVM_OPTIONS="-Djsse.enableSNIExtension=false "
 
 echo "libs at: $bin/../lib"
 
@@ -32,8 +32,8 @@ fi
 function start () {
   PROC_NAME=ssc-server-$HOSTNAME
   echo "starting: $PROC_NAME  $SSC_CLASSPATH"
-  "$JAVA_DIR"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -Djsse.enableSNIExtension=false -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector
-  #nohup "$JAVA_HOME"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector  2>&1 < /dev/null &
+  "$JAVA_DIR"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector
+  #nohup "$JAVA_DIR"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector 2>&1 < /dev/null &
   echo $! > $PID_FILE
   echo SSC starting as process `cat $PID_FILE`.
 }
