@@ -1,6 +1,8 @@
 package com.eqt.ssc.collector;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -12,6 +14,8 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeReservedInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeSnapshotsRequest;
+import com.amazonaws.services.ec2.model.DescribeTagsResult;
+import com.amazonaws.services.ec2.model.TagDescription;
 import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.state.StateEngine;
@@ -106,7 +110,17 @@ public class EC2Collector extends APICollector {
 //		compareObjects(ec2.describeSpotPriceHistory(), "ec2.describeSpotPriceHistory");
 		
 		compareObjects(ec2.describeSubnets(), "ec2.describeSubnets",token.getAccountId());
-		compareObjects(ec2.describeTags(), "ec2.describeTags",token.getAccountId());
+		
+		DescribeTagsResult describeTags = ec2.describeTags();
+		Collections.sort(describeTags.getTags(),new Comparator<TagDescription>() {
+
+			@Override
+			public int compare(TagDescription tag1, TagDescription tag2) {
+				String name1 = tag1.getResourceType() + tag1.getResourceId() + tag1.getKey() + tag1.getValue();
+				String name2 = tag2.getResourceType() + tag2.getResourceId() + tag2.getKey() + tag2.getValue();
+				return name1.compareTo(name2);
+			}});
+		compareObjects(describeTags, "ec2.describeTags",token.getAccountId());
 		
 		//appears to allow accessing of individual values found in ec2.describeVolumes()
 		//compareObjects(ec2.describeVolumeAttribute(), "ec2.describeVolumeAttribute");
@@ -129,3 +143,4 @@ public class EC2Collector extends APICollector {
 		return "ssc.account.check.interval.ec2.seconds";
 	}
 }
+
