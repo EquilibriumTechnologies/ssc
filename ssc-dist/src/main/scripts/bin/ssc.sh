@@ -15,6 +15,7 @@ SSC_CLASSPATH=$bin/../conf:$SSC_CLASSPATH
 
 export SSC_HOME="$bin"/..
 PID_FILE=$SSC_HOME/pids/ssc.pid
+LOG_DIR=$SSC_HOME/logs/
 
 JAVA_DIR=$JAVA_HOME
 
@@ -32,20 +33,41 @@ fi
 function start () {
   PROC_NAME=ssc-server-$HOSTNAME
   echo "starting: $PROC_NAME  $SSC_CLASSPATH"
-  "$JAVA_DIR"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector
-  #nohup "$JAVA_DIR"/bin/java -Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -cp $SSC_CLASSPATH com.eqt.ssc.SimpleStateCollector 2>&1 < /dev/null &
+  ALL_OPTS="-Dssc.name=$PROC_NAME $SSC_JVM_OPTIONS -Dssc.log.dir=$LOG_DIR  -cp $SSC_CLASSPATH "
+  #"$JAVA_DIR"/bin/java $ALL_OPTS com.eqt.ssc.SimpleStateCollector
+  nohup "$JAVA_DIR"/bin/java $ALL_OPTS com.eqt.ssc.SimpleStateCollector 2>&1 < /dev/null &
   echo $! > $PID_FILE
   echo SSC starting as process `cat $PID_FILE`.
 }
 
-#check for existence first
-if [ -f $PID_FILE ]; then
+if [[ "$1" == "start" ]]; then
+ echo "starting";
+ #check for existence first
+ if [ -f $PID_FILE ]; then
   if kill -0 `cat $PID_FILE` > /dev/null 2>&1; then
     echo SSC is already running as process `cat $PID_FILE`.  Stop it first.
   else
     start
   fi
-else
+ else
+  #TODO: a pgrep or something for the process name for lost processes?
   start
+ fi
+
+elif [[ "$1" == "stop" ]]; then
+ echo "stopping";
+ #check for existence first
+ if [ -f $PID_FILE ]; then
+  if kill -0 `cat $PID_FILE` > /dev/null 2>&1; then
+   echo "stopped process";
+  else
+   echo "could not stop the process ${cat $PID_FILE}";
+  fi
+  rm $PID_FILE;
+ else
+  echo "no pid file, not running or lost process id.";
+ fi
+else
+ echo "USAGE: ssc.sh {start|stop}"
 fi
 
