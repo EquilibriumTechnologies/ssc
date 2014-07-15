@@ -11,6 +11,8 @@ import org.apache.commons.logging.LogFactory;
 import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.Address;
+import com.amazonaws.services.ec2.model.DescribeAddressesResult;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeReservedInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeSnapshotsRequest;
@@ -44,6 +46,16 @@ public class EC2Collector extends APICollector {
 		
 		//TODO: each aws call can throw RuntimeException, need to catch that.
 	
+		DescribeAddressesResult addresses = ec2.describeAddresses();
+		Collections.sort(addresses.getAddresses(), new Comparator<Address>() {
+
+			@Override
+			public int compare(Address a1, Address a2) {
+				return a1.toString().compareTo(a2.toString());
+			}
+			
+		});
+		
 		compareObjects(ec2.describeAddresses(), "ec2.describeAddresses",token.getAccountId());
 
 		compareObjects(ec2.describeAvailabilityZones(), "ec2.describeAvailabilityZones",token.getAccountId());
@@ -116,9 +128,7 @@ public class EC2Collector extends APICollector {
 
 			@Override
 			public int compare(TagDescription tag1, TagDescription tag2) {
-				String name1 = tag1.getResourceType() + tag1.getResourceId() + tag1.getKey() + tag1.getValue();
-				String name2 = tag2.getResourceType() + tag2.getResourceId() + tag2.getKey() + tag2.getValue();
-				return name1.compareTo(name2);
+				return tag1.toString().compareTo(tag2.toString());
 			}});
 		compareObjects(describeTags, "ec2.describeTags",token.getAccountId());
 		
