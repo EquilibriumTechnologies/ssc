@@ -1,5 +1,9 @@
 package com.eqt.ssc.collector;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,7 +41,7 @@ public class ELBCollector extends APICollector {
 		compareObjects(elb.describeLoadBalancerPolicies(),"elb.describeLoadBalancerPolicies", token.getAccountId());
 		
 		DescribeLoadBalancersResult balancers = elb.describeLoadBalancers();
-		compareObjects(balancers,"elb.describeLoadBalancers", token.getAccountId());
+		compareJson(balancers,"elb.describeLoadBalancers", token.getAccountId());
 		
 		//TODO: change this to hold DescribeInstanceHealthResult
 		LoadBalancersHealth wrapper = new LoadBalancersHealth();

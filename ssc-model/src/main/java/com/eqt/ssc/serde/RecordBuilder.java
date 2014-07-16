@@ -8,6 +8,7 @@ import java.nio.file.FileSystems;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.amazonaws.internal.ListWithAutoConstructFlag;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Grant;
 import com.amazonaws.services.s3.model.Grantee;
@@ -33,11 +34,8 @@ public class RecordBuilder {
 	
 	static {
 		GsonBuilder builder = new GsonBuilder();
-//		builder.registerTypeAdapter(CanonicalGrantee.class, new GranteeInstanceCreator());
-//		builder.registerTypeAdapter(EmailAddressGrantee.class, new GranteeInstanceCreator());
-//		builder.registerTypeAdapter(GroupGrantee.class, new GranteeInstanceCreator());
-//		builder.registerTypeAdapter(Grantee.class, new InterfaceAdapter<Grantee>());
-//		builder.registerTypeAdapter(CanonicalGrantee.class, new CanonicalGranteeAdapter());
+
+		builder.registerTypeAdapter(ListWithAutoConstructFlag.class,new ListWithAutoConstructFlagAdapter());
 		builder.registerTypeAdapter(AccessControlList.class, new AccessControlListAdapter());
 		builder.registerTypeAdapter(Grantee.class, new GranteeAdapter());
 		builder.registerTypeAdapter(Grant.class, new GrantAdapter());
