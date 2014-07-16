@@ -46,17 +46,8 @@ public class EC2Collector extends APICollector {
 		
 		//TODO: each aws call can throw RuntimeException, need to catch that.
 	
-		DescribeAddressesResult addresses = ec2.describeAddresses();
-		Collections.sort(addresses.getAddresses(), new Comparator<Address>() {
-
-			@Override
-			public int compare(Address a1, Address a2) {
-				return a1.toString().compareTo(a2.toString());
-			}
-			
-		});
 		
-		compareObjects(ec2.describeAddresses(), "ec2.describeAddresses",token.getAccountId());
+		compareJson(ec2.describeAddresses(), "ec2.describeAddresses",token.getAccountId());
 
 		compareObjects(ec2.describeAvailabilityZones(), "ec2.describeAvailabilityZones",token.getAccountId());
 		compareObjects(ec2.describeBundleTasks(), "ec2.describeBundleTasks",token.getAccountId());
@@ -123,14 +114,7 @@ public class EC2Collector extends APICollector {
 		
 		compareObjects(ec2.describeSubnets(), "ec2.describeSubnets",token.getAccountId());
 		
-		DescribeTagsResult describeTags = ec2.describeTags();
-		Collections.sort(describeTags.getTags(),new Comparator<TagDescription>() {
-
-			@Override
-			public int compare(TagDescription tag1, TagDescription tag2) {
-				return tag1.toString().compareTo(tag2.toString());
-			}});
-		compareObjects(describeTags, "ec2.describeTags",token.getAccountId());
+		compareJson(ec2.describeTags(), "ec2.describeTags",token.getAccountId());
 		
 		//appears to allow accessing of individual values found in ec2.describeVolumes()
 		//compareObjects(ec2.describeVolumeAttribute(), "ec2.describeVolumeAttribute");

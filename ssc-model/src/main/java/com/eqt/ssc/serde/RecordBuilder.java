@@ -133,19 +133,6 @@ public class RecordBuilder {
 			return jElem1.getAsJsonPrimitive().equals(jElem2.getAsJsonPrimitive());
 		else
 			return jElem1.getAsJsonNull().equals(jElem2.getAsJsonNull());
-//		ObjectMapper mapper = new ObjectMapper();
-//		try {
-//			System.out.println(mapper.readTree(json1));
-//			System.out.println(mapper.readTree(json2));
-//			return mapper.readTree(json1).equals(mapper.readTree(json2));
-//		} catch (JsonProcessingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return false;
 	}
 	
 	
