@@ -14,6 +14,11 @@ done
 SSC_CLASSPATH=$bin/../conf:$SSC_CLASSPATH
 
 export SSC_HOME="$bin"/..
+
+#create pid and log dir if missing
+mkdir -p $SSC_HOME/pids
+mkdir -p $SSC_HOME/logs
+
 PID_FILE=$SSC_HOME/pids/ssc.pid
 LOG_DIR=$SSC_HOME/logs/
 
