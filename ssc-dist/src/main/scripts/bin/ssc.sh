@@ -66,7 +66,7 @@ elif [[ "$1" == "stop" ]]; then
   if kill -0 `cat $PID_FILE` > /dev/null 2>&1; then
    echo "stopped process";
   else
-   echo "could not stop the process ${cat $PID_FILE}";
+   echo "could not stop the process $(cat $PID_FILE)";
   fi
   rm $PID_FILE;
  else
