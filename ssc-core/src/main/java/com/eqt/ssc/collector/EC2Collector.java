@@ -1,8 +1,6 @@
 package com.eqt.ssc.collector;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -11,13 +9,9 @@ import org.apache.commons.logging.LogFactory;
 import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.Address;
-import com.amazonaws.services.ec2.model.DescribeAddressesResult;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeReservedInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeSnapshotsRequest;
-import com.amazonaws.services.ec2.model.DescribeTagsResult;
-import com.amazonaws.services.ec2.model.TagDescription;
 import com.eqt.ssc.model.SSCAccountStatus;
 import com.eqt.ssc.model.Token;
 import com.eqt.ssc.state.StateEngine;
@@ -118,16 +112,16 @@ public class EC2Collector extends APICollector {
 		
 		//appears to allow accessing of individual values found in ec2.describeVolumes()
 		//compareObjects(ec2.describeVolumeAttribute(), "ec2.describeVolumeAttribute");
-		compareObjects(ec2.describeVolumeStatus(), "ec2.describeVolumeStatus",token.getAccountId());
+		compareJson(ec2.describeVolumeStatus(), "ec2.describeVolumeStatus",token.getAccountId());
 		compareJson(ec2.describeVolumes(), "ec2.describeVolumes",token.getAccountId());
 		
 
 		//unknown call
 //		compareObjects(ec2.describeVpcPeeringConnection(), "ec2.describeVpcPeeringConnection");
 		
-		compareObjects(ec2.describeVpcs(), "ec2.describeVpcs",token.getAccountId());
-		compareObjects(ec2.describeVpnConnections(), "ec2.describeVpnConnections",token.getAccountId());
-		compareObjects(ec2.describeVpnGateways(), "ec2.describeVpnGateways",token.getAccountId());
+		compareJson(ec2.describeVpcs(), "ec2.describeVpcs",token.getAccountId());
+		compareJson(ec2.describeVpnConnections(), "ec2.describeVpnConnections",token.getAccountId());
+		compareJson(ec2.describeVpnGateways(), "ec2.describeVpnGateways",token.getAccountId());
 		
 		return new SSCAccountStatus(token,stateChanges);
 	}
