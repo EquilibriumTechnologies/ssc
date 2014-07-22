@@ -87,7 +87,7 @@ public class EC2Collector extends APICollector {
 		//not pertinent to state capture..
 //		compareObjects(ec2.describeReservedInstancesOfferings(), "ec2.describeReservedInstancesOfferings");
 		
-		compareObjects(ec2.describeRouteTables(), "ec2.describeRouteTables",token.getAccountId());
+		compareJson(ec2.describeRouteTables(), "ec2.describeRouteTables",token.getAccountId());
 		compareObjects(ec2.describeSecurityGroups(), "ec2.describeSecurityGroups",token.getAccountId());
 		
 		//appears to allow accessing of individual values found in ec2.describeSnapshots()
