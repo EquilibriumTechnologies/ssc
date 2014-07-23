@@ -222,6 +222,9 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 				}
 			}
 
+			//update our undertanding of the world
+			knownAccounts = new ArrayList<SSCAccount>(allAccounts);
+			
 			// should be good to go!
 			try {
 				Thread.sleep(500);
