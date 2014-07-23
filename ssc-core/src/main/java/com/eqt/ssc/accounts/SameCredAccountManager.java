@@ -1,5 +1,8 @@
 package com.eqt.ssc.accounts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.eqt.ssc.model.SSCAccount;
 import com.eqt.ssc.model.Token;
@@ -33,6 +36,14 @@ public class SameCredAccountManager extends AccountManager {
 	@Override
 	public void addAccount(SSCAccount account) {
 		throw new UnsupportedOperationException("does not supprt this");
+	}
+
+	@Override
+	public List<SSCAccount> getKnownAccounts() {
+		List<SSCAccount> accounts = new ArrayList<SSCAccount>();
+		if(tokens.size() == 1)
+			accounts.add((SSCAccount)tokens.get(0));
+		return accounts;
 	}
 
 }

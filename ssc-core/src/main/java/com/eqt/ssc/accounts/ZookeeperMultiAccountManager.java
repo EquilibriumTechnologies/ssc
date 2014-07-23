@@ -49,6 +49,9 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 	// whoami
 	String managerName = null;
 	int totalManagers = 0;
+	
+	//known accounts
+	List<SSCAccount> knownAccounts = new ArrayList<SSCAccount>();
 
 	protected static final String _AM_BASE_PATH = "/ssc_am";
 	private static final String _AM_DISCOVERY_PATH = _AM_BASE_PATH + "/discovery";
@@ -128,20 +131,25 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 					pos++;
 			}
 
-			// get latest accountList
+			// get latest accountList in json string form
 			List<ChildData> accounts = accountCache.getCurrentData();
 
 			// used to keep track of ones we are meant to have, if not in here,
 			// kill.
 			List<String> newAccountList = new ArrayList<String>();
+			
+			//for populating the list of known accounts
+			List<SSCAccount> allAccounts = new ArrayList<SSCAccount>();
 
 			// loop over all the accounts.
 			int count = 0;
 			for (ChildData c : accounts) {
+				String acctStr = new String(c.getData());
+				SSCAccount account = AWSUtils.deserialize(acctStr);
+				allAccounts.add(account);
+
 				// this is one of ours. Take it.
 				if (count == pos) {
-					String acctStr = new String(c.getData());
-					SSCAccount account = AWSUtils.deserialize(acctStr);
 
 					String accountId = account.getAccountId();
 					// add to our list of keepers.
@@ -159,31 +167,33 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 
 					// nope, lets set it up then.
 					if (!has) {
-						//TODO: rework this, maybe make Token a provider?
-						AWSCredentialsProvider provider = new SSCFixedProvider(account);
-						if (wrap) {
-							try {
-								provider = (AWSCredentialsProvider) wrapCon.newInstance(provider);
-								LOG.debug("wrapped provider");
-
-							} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
-								LOG.error("could not create class: " + wrapperClass.getName(), e);
-								throw new IllegalStateException(e);
-							} catch (InvocationTargetException e) {
-								LOG.error(
-										"could not invoke powerfull enough spell for class: " + wrapperClass.getName(),
-										e);
-								throw new IllegalStateException(e);
-							}
-						}
-
-						Token t = new Token(account,provider);
 						
-						synchronized (tokens) {
-							tokens.add(t);
+						try {
+							//TODO: rework this, maybe make Token a provider?
+							AWSCredentialsProvider provider = new SSCFixedProvider(account);
+							if (wrap) {
+									provider = (AWSCredentialsProvider) wrapCon.newInstance(provider);
+									LOG.debug("wrapped provider");
+							}
+
+							Token t = new Token(account,provider);
+							
+							synchronized (tokens) {
+								tokens.add(t);
+							}
+							update.set(true);
+							LOG.info("added new account: " + accountId);
+
+							
+						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
+							LOG.error("could not create class: " + wrapperClass.getName(), e);
+						} catch (InvocationTargetException e) {
+							LOG.error(
+									"could not invoke powerfull enough spell for class: " + wrapperClass.getName(),
+									e);
+						} catch (Throwable e) {
+							LOG.error("random wrongness with account: " + account,e);
 						}
-						update.set(true);
-						LOG.info("added new account: " + accountId);
 					}
 				}
 				count++;
@@ -242,5 +252,10 @@ public class ZookeeperMultiAccountManager extends AccountManager {
 		} catch (Exception e) {
 			throw new IllegalStateException("well couldnt do that", e);
 		}
+	}
+	
+	@Override
+	public List<SSCAccount> getKnownAccounts() {
+		return knownAccounts;
 	}
 }

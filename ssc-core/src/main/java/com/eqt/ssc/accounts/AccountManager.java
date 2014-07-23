@@ -34,6 +34,16 @@ public abstract class AccountManager implements Runnable {
 		return update.get();
 	}
 	
+	/**
+	 * returns a list of all known accounts from the manager, this will include
+	 * accounts that cannot be accessed, or are not working for whatever reason.
+	 * @return
+	 */
+	public abstract List<SSCAccount> getKnownAccounts();	
+	/**
+	 * gets the current list of accounts managed to the manager
+	 * @return
+	 */
 	public List<Token> getAccounts() {
 		update.set(false);
 		List<Token> result = null;
