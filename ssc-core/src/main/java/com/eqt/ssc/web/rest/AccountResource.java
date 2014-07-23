@@ -33,6 +33,18 @@ public class AccountResource {
 	}
 	
 	@GET
+	@Path("allAccounts")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ManagedAccounts getAllAccounts() {
+		LOG.info("getAllAccounts called");
+		ManagedAccounts m = new ManagedAccounts();
+		List<SSCAccount> accounts = man.getKnownAccounts();
+		for(SSCAccount a : accounts)
+			m.accounts.add(a.getAccountId());
+		return m;
+	}
+	
+	@GET
 	@Path("managedAccounts")
 	@Produces(MediaType.APPLICATION_JSON)
 	public ManagedAccounts getManagedAccounts() {
